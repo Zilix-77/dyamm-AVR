@@ -6,18 +6,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<ProviderContainer> _openEditor(
-    WidgetTester tester, String name) async {
+Future<ProviderContainer> _openEditor(WidgetTester tester, String name) async {
   await tester.pumpWidget(const ProviderScope(child: DyammApp()));
   await tester.pumpAndSettle();
-  await tester.tap(find.text('NEW PROJECT'));
+  await tester.tap(find.text('New Project'));
   await tester.pumpAndSettle();
   await tester.enterText(find.byType(TextField), name);
-  await tester.tap(find.text('CREATE'));
+  await tester.tap(find.text('Create'));
   await tester.pumpAndSettle();
   return ProviderScope.containerOf(
-      tester.element(find.byType(SchematicCanvas)),
-      listen: false);
+    tester.element(find.byType(SchematicCanvas)),
+    listen: false,
+  );
 }
 
 void main() {
@@ -29,21 +29,19 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tapAt(tester.getCenter(find.byType(SchematicCanvas)));
     await tester.pumpAndSettle();
+    expect(container.read(sessionProvider).active?.components.length, 1);
     expect(
-        container.read(sessionProvider).active?.components.length, 1);
-    expect(
-        container
-            .read(sessionProvider)
-            .active
-            ?.components
-            .single
-            .properties['resistance'],
-        220);
+      container
+          .read(sessionProvider)
+          .active
+          ?.components
+          .single
+          .properties['resistance'],
+      220,
+    );
   });
 
-  testWidgets('tool pad selects the active tool', (
-    WidgetTester tester,
-  ) async {
+  testWidgets('tool pad selects the active tool', (WidgetTester tester) async {
     final container = await _openEditor(tester, 'ed');
     await tester.tap(find.text('Wire'));
     await tester.pumpAndSettle();

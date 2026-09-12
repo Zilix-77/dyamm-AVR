@@ -13,19 +13,20 @@ void main() {
     WidgetTester tester,
   ) async {
     await _pump(tester);
-    expect(find.text('DYAMM-AVR'), findsOneWidget);
-    expect(find.text('NEW PROJECT'), findsOneWidget);
+    expect(find.text('DYAMM'), findsNWidgets(2)); // app bar + brand mark
+    expect(find.text('-AVR'), findsOneWidget);
+    expect(find.text('New Project'), findsOneWidget);
     expect(find.text('RECENT PROJECTS'), findsOneWidget);
-    expect(find.textContaining('NO PROJECTS YET'), findsOneWidget);
+    expect(find.textContaining('No projects yet'), findsOneWidget);
     // Editor must not show yet.
     expect(find.byTooltip('Close project'), findsNothing);
   });
 
   testWidgets('empty project name is rejected', (WidgetTester tester) async {
     await _pump(tester);
-    await tester.tap(find.text('NEW PROJECT'));
+    await tester.tap(find.text('New Project'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('CREATE'));
+    await tester.tap(find.text('Create'));
     await tester.pumpAndSettle();
     expect(find.text('Enter a project name'), findsOneWidget);
     // Still on Project Manager.
@@ -36,10 +37,10 @@ void main() {
     WidgetTester tester,
   ) async {
     await _pump(tester);
-    await tester.tap(find.text('NEW PROJECT'));
+    await tester.tap(find.text('New Project'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), '  blink  ');
-    await tester.tap(find.text('CREATE'));
+    await tester.tap(find.text('Create'));
     await tester.pumpAndSettle();
     // Editor shell with trimmed project name + .dyamm pill.
     expect(find.text('blink.dyamm'), findsWidgets);

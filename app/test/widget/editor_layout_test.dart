@@ -16,10 +16,10 @@ Future<void> _pumpEditor(WidgetTester tester) async {
   });
   await tester.pumpWidget(const ProviderScope(child: DyammApp()));
   await tester.pumpAndSettle();
-  await tester.tap(find.text('NEW PROJECT'));
+  await tester.tap(find.text('New Project'));
   await tester.pumpAndSettle();
   await tester.enterText(find.byType(TextField), 'stitch');
-  await tester.tap(find.text('CREATE'));
+  await tester.tap(find.text('Create'));
   await tester.pumpAndSettle();
 }
 

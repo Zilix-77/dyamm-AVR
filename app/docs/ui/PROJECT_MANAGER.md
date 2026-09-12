@@ -1,9 +1,9 @@
 # Project Manager & Project System
 
 > DYAMM is project-based: the user experience begins here, not in the simulator.
-> Stitch truth: `ui/DESIGN.md` (Bauhaus Neo-Brutalist). Code:
-> `lib/features/project/project_manager_screen.dart`,
-> `lib/core/theme/editor_theme.dart` (`managerTheme()`, `Brutalist`).
+> Visual language: unified dark CAD, same tokens as the editor
+> (`ui/screen.png`). Code: `lib/features/project/project_manager_screen.dart`.
+> Portrait vertical file manager; behavior unchanged (see below).
 
 ## First-run flow (implemented)
 
@@ -14,12 +14,15 @@ Launch → Project Manager → New/Open Project → Main Editor
 `RootScreen` (`lib/app.dart`) switches on `sessionProvider.active`: null → Manager,
 set → Editor. No routes yet.
 
-## Project Manager (implemented, brutalist restyle on `phase-ui-stitch`)
+## Project Manager (implemented, dark-CAD restyle on `phase-ui-stitch`)
 
-Paper `#f5f0e8` ground, ink `#1a1a1a` blocks, 2.5px borders with 5px
-offset shadows, oversized `DYAMM-AVR` headline, yellow `NEW PROJECT` CTA,
-uppercase section bands (`RECENT PROJECTS`, `ON THIS DEVICE`). System
-fonts only (Space Grotesk/Inter deferred — zero new deps).
+Canvas `#040404` ground, panel brand card with the white logo box +
+`DYAMM` bold / `-AVR` muted mark (same as the editor top bar), solid-white
+`New Project` CTA (mirrors the editor `Run` button), dock-style uppercase
+section headers (`Recent Projects`, `On This Device`), `card` rows with
+mono `.dyamm` suffixes, muted sentence-case empty states, `#3A1414` error
+strip. Dialog is panel + border with the editor input style. System fonts
+only — zero new deps. Portrait layout (`maxWidth 520` column) unchanged.
 
 Behavior (unchanged, existing logic):
 

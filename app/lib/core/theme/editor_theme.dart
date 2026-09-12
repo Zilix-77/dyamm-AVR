@@ -21,8 +21,8 @@ abstract final class EditorColors {
   static const fontMono = 'monospace';
 }
 
-/// Dark editor ThemeData. Applied app-wide; the Project Manager wraps its
-/// own subtree in [managerTheme] (brutalist light, per DESIGN.md).
+/// Dark editor ThemeData, applied app-wide — including the Project Manager,
+// which shares the same CAD visual language (portrait file-manager layout).
 ThemeData editorTheme() {
   const scheme = ColorScheme.dark(
     primary: EditorColors.bright,
@@ -82,74 +82,6 @@ ThemeData editorTheme() {
     snackBarTheme: const SnackBarThemeData(
       backgroundColor: EditorColors.card,
       contentTextStyle: TextStyle(color: EditorColors.bright),
-    ),
-  );
-}
-
-/// Bauhaus Neo-Brutalist tokens (DESIGN.md) — Project Manager + dialogs only.
-abstract final class Brutalist {
-  static const paper = Color(0xFFF5F0E8);
-  static const ink = Color(0xFF1A1A1A);
-  static const yellow = Color(0xFFFFCC00);
-  static const red = Color(0xFFE63B2E);
-  static const blue = Color(0xFF0055FF);
-
-  static const borderSide = BorderSide(color: ink, width: 2.5);
-
-  static BoxDecoration card() => BoxDecoration(
-    color: paper,
-    border: Border.all(color: ink, width: 2.5),
-    boxShadow: const [BoxShadow(color: ink, offset: Offset(5, 5))],
-  );
-
-  static ButtonStyle button({Color? bg}) => FilledButton.styleFrom(
-    backgroundColor: bg ?? ink,
-    foregroundColor: paper,
-    shape: const RoundedRectangleBorder(
-      side: borderSide,
-      borderRadius: BorderRadius.zero,
-    ),
-  );
-}
-
-/// Light brutalist theme for the Project Manager subtree.
-ThemeData managerTheme() {
-  const scheme = ColorScheme.light(
-    primary: Brutalist.ink,
-    onPrimary: Brutalist.paper,
-    secondary: Brutalist.yellow,
-    surface: Brutalist.paper,
-    onSurface: Brutalist.ink,
-    error: Brutalist.red,
-  );
-  return ThemeData(
-    colorScheme: scheme,
-    scaffoldBackgroundColor: Brutalist.paper,
-    useMaterial3: true,
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Brutalist.paper,
-      foregroundColor: Brutalist.ink,
-      elevation: 0,
-    ),
-    cardTheme: const CardThemeData(
-      color: Brutalist.paper,
-      shape: RoundedRectangleBorder(
-        side: Brutalist.borderSide,
-        borderRadius: BorderRadius.zero,
-      ),
-      elevation: 0,
-    ),
-    inputDecorationTheme: const InputDecorationTheme(
-      border: UnderlineInputBorder(
-        borderSide: BorderSide(color: Brutalist.ink, width: 2.5),
-      ),
-      enabledBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: Brutalist.ink, width: 2.5),
-      ),
-      focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: Brutalist.blue, width: 2.5),
-      ),
-      labelStyle: TextStyle(color: Brutalist.ink),
     ),
   );
 }
