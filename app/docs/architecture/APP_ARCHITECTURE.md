@@ -20,4 +20,4 @@ errors) · `core/services` (`StorageService`, offline JSON) · `core/sim_state.d
 
 ## Native boundary
 `bridge/native_bridge.dart`: `AvrEngine`, `CircuitSolver`, `Toolchain` ·
-`bridge/simulation_bridge.dart`: `McuBridge`. All throw `UnimplementedError` until Phase 0–3.
+`bridge/simulation_bridge.dart`: `McuBridge`. All throw `UnimplementedError` until their implementation phase.

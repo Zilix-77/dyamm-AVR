@@ -17,5 +17,5 @@ AVR Emulator (GPIO/ADC/PWM) ⇄ McuBridge ⇄ Circuit Engine (nets)
 
 ## Sync problem (§62.3)
 Solver and emulator use different timesteps — a robust sync strategy is an open decision
-(§63.4, §63.9). Keep the bridge the **only** coupling point; Phase 3 proves it with the
-PB0→R→LED circuit before editor work.
+(§63.4, §63.9). Keep the bridge the **only** coupling point; Phase 6 proves it with the
+PB0→R→LED circuit (Phase 6).

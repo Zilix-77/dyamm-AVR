@@ -1,6 +1,6 @@
 # Schematic Editor
 
-> Source: PRD §§6.1, 31, 33–35, Phase 4. Code: `lib/features/schematic/`.
+> Source: PRD §§6.1, 31, 33–35, Phase 1. Code: `lib/features/schematic/`.
 
 ## Canvas (§31)
 Infinite 2D, dotted grid (`AppConstants.gridStep`), snap-to-grid, `InteractiveViewer`

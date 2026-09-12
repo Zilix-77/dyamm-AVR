@@ -1,2 +1,2 @@
-# native/compiler — AVR-GCC + AVR Libc packaging for Android (PRD Phase 1).
+# native/compiler — AVR-GCC + AVR Libc packaging for Android (Phase 5).
 # Called via MethodChannel Toolchain. No binaries yet.

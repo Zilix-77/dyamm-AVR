@@ -16,3 +16,5 @@ Canvas dominates; panels are movable/resizable/collapsible/dockable (§34).
 ## Rules
 Minimal chrome and effects (perf §42); controls drive `*Manager` Notifiers, never engines;
 panels expose collapse/resize/dock from day one so layout work isn't redone later.
+
+Entry point: the Project Manager screen comes before this workspace — see `PROJECT_MANAGER.md`.

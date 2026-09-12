@@ -17,6 +17,10 @@ Create Project → Schematic Canvas → Place ATmega32 + components → Wire →
 → Compile (local AVR-GCC) → ELF → Load → Run → Firmware ↔ Circuit → Measure/Debug
 ```
 
+## First-run experience (Phase 1)
+
+Launch → Project Manager (New/Open/Recent) → Main Editor. See `ui/PROJECT_MANAGER.md`.
+
 ## Users (PRD §5)
 Electronics students, embedded developers (GPIO/sensors/LEDs/displays), hobbyists.
 

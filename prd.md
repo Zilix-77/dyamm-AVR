@@ -1,5 +1,11 @@
 # Product Requirements Document (PRD)
 
+> **Development-order note:** §§44, 58–59, 62.1, 67 describe an engines-first build order
+> (native/AVR proof before the application shell). This is superseded: the authoritative
+> development order is `app/docs/04_DEVELOPMENT_ROADMAP.md` (Phase 0 App Foundation →
+> Project Manager → Main Editor → … → simavr/ATmega32 at Phase 4). Product requirements
+> below still apply; only the build order changed.
+
 # dyamm-AVR Schema design — Android-Based 2D Circuit & Embedded System Simulator
 
 **Version:** 1.0  

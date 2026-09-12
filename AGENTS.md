@@ -8,6 +8,8 @@ Do NOT generate implementation-specific documentation in advance based only on t
 
 The following documentation files must be created and/or updated WHILE their corresponding systems are actually implemented:
 
+> Paths below are relative to `app/` (e.g. `app/docs/simulation/AVR_SIMULATION.md`).
+
 ### Simulation
 
 - `docs/simulation/AVR_SIMULATION.md`
@@ -125,7 +127,7 @@ Do not wait until the entire project is finished.
 
 For example:
 
-### Phase 1
+### Phase 4
 
 Implement basic simavr integration.
 
@@ -135,7 +137,7 @@ Update:
 
 Document only what currently works.
 
-### Phase 2
+### Phase 4 (continued)
 
 Add ATmega32 firmware loading.
 
@@ -147,7 +149,7 @@ and, if applicable:
 
 `docs/firmware/ELF_HEX_HANDLING.md`
 
-### Phase 3
+### Phase 5
 
 Add AVR-GCC compilation.
 
@@ -155,7 +157,7 @@ Update:
 
 `docs/firmware/AVR_GCC_PIPELINE.md`
 
-### Phase 4
+### Phase 6
 
 Add GPIO → circuit communication.
 
