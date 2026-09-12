@@ -1,5 +1,5 @@
-import '../components/models/component.dart';
-import '../project/models/project.dart';
+import '../../components/models/component.dart';
+import '../../project/models/project.dart';
 
 /// Minimal DC steady-state solver (Modified Nodal Analysis).
 /// Scope: resistors, voltage sources, GND, switches, LEDs/diodes (fixed-Vf),
@@ -10,11 +10,15 @@ import '../project/models/project.dart';
 /// Result of one solve, in volts / amps / on-off states.
 class CircuitSolution {
   final Map<String, double> nodeVoltages;
+
+  /// Per-pin voltages keyed `componentId.pinId` (net voltage at that pin).
+  final Map<String, double> pinVoltages;
   final Map<String, bool> componentOn;
   final Map<String, double> branchCurrents;
   final String? error;
   const CircuitSolution({
     this.nodeVoltages = const {},
+    this.pinVoltages = const {},
     this.componentOn = const {},
     this.branchCurrents = const {},
     this.error,
@@ -189,6 +193,10 @@ CircuitSolution _solveOnce(
   }
   nets.add(_groundKey);
   nets.addAll(groundNets);
+  if (groundNets.isEmpty && (resistors.isNotEmpty || sources.isNotEmpty)) {
+    return const CircuitSolution(
+        error: 'No ground reference: add a GND component.');
+  }
   final nodes = nets
       .where((n) => n != _groundKey && !groundNets.contains(n))
       .toList();
@@ -198,6 +206,10 @@ CircuitSolution _solveOnce(
   if (n == 0) {
     return CircuitSolution(
       nodeVoltages: {for (final net in nets) net: 0},
+      pinVoltages: {
+        for (final c in project.components)
+          for (final p in c.pins) '${c.id}.${p.id}': 0,
+      },
       componentOn: Map.of(on),
     );
   }
@@ -237,6 +249,12 @@ CircuitSolution _solveOnce(
     z[n + k] = s.volts;
   }
 
+  // gmin leakage keeps floating nets solvable (standard SPICE practice);
+  // 1e-12 S is far below any real conductance stamped here.
+  for (var i = 0; i < n; i++) {
+    a[i][i] += 1e-12;
+  }
+
   // 5. Gaussian elimination with partial pivot.
   for (var col = 0; col < size; col++) {
     var piv = col;
@@ -274,7 +292,9 @@ CircuitSolution _solveOnce(
 
   double volt(String net) {
     if (net == _groundKey || groundNets.contains(net)) return 0;
-    return x[index[net]!];
+    // Unstamped nets (open switches, unconnected pins) float at 0.
+    final i = index[net];
+    return i == null ? 0 : x[i];
   }
 
   final voltages = {for (final net in nets) net: volt(net)};
@@ -294,6 +314,11 @@ CircuitSolution _solveOnce(
   }
   return CircuitSolution(
     nodeVoltages: voltages,
+    pinVoltages: {
+      for (final c in project.components)
+        for (final p in c.pins)
+          '${c.id}.${p.id}': voltages[netOf(c, p.id)] ?? 0,
+    },
     componentOn: Map.of(on),
     branchCurrents: currents,
   );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/theme/editor_theme.dart';
 import 'features/project/project_manager.dart';
 import 'features/project/project_manager_screen.dart';
 import 'features/schematic/workspace.dart';
@@ -14,10 +15,7 @@ class DyammApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'dyamm-AVR Schema design',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
-        useMaterial3: true,
-      ),
+      theme: editorTheme(),
       home: const RootScreen(),
     );
   }

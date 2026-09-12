@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/sim_state.dart';
-import '../project/project_manager.dart';
-import '../project/services/project_storage.dart';
-import '../simulation/simulation.dart';
+import '../../core/theme/editor_theme.dart';
 import 'canvas/schematic_canvas.dart';
+import 'widgets/editor_top_bar.dart';
 import 'widgets/library_bar.dart';
+import 'widgets/project_panel.dart';
 import 'widgets/tool_pad.dart';
 
-/// Main Editor shell, Phase 0 (PRD §28-§34).
-/// Layout only: sim controls, library, tool pad and minimap are visual
-/// placeholders until Phases 1/3+.
+/// Landscape editor shell — Stitch layout:
+/// top bar · left dock · canvas (minimap TR, zoom pill BL) ·
+/// bottom library + 3×3 pad. Editing gestures live in [SchematicCanvas];
+/// sim controls drive the existing SimController.
 class WorkspaceScreen extends ConsumerStatefulWidget {
   const WorkspaceScreen({super.key});
 
@@ -21,6 +21,7 @@ class WorkspaceScreen extends ConsumerStatefulWidget {
 
 class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
   final _zoomController = TransformationController();
+  bool _dockOpen = true;
 
   @override
   void dispose() {
@@ -36,154 +37,201 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final sim = ref.watch(simControllerProvider);
-    final simCtl = ref.read(simControllerProvider.notifier);
-    final projectName = ref.watch(
-      sessionProvider.select((s) => s.active?.name ?? ''),
-    );
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          tooltip: 'Close project',
-          icon: const Icon(Icons.close),
-          onPressed: () => ref.read(sessionProvider.notifier).close(),
-        ),
-        title: Text(projectName.isEmpty ? 'Editor' : projectName),
-        actions: [
-          // Placeholders (Phase 3+): toggle UI state only, no engine.
-          IconButton(
-            tooltip: 'Run (placeholder)',
-            icon: const Icon(Icons.play_arrow),
-            onPressed: sim == SimState.running ? null : simCtl.run,
-          ),
-          IconButton(
-            tooltip: 'Pause (placeholder)',
-            icon: const Icon(Icons.pause),
-            onPressed: sim == SimState.running ? simCtl.pause : null,
-          ),
-          IconButton(
-            tooltip: 'Stop (placeholder)',
-            icon: const Icon(Icons.stop),
-            onPressed: sim == SimState.stopped ? null : simCtl.stop,
-          ),
-        ],
+      backgroundColor: EditorColors.canvas,
+      appBar: EditorTopBar(
+        onMenu: () => setState(() => _dockOpen = !_dockOpen),
       ),
-      drawer: const ProjectPanel(),
-      body: Column(
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (_dockOpen) const SizedBox(width: 256, child: ProjectPanelBody()),
+          if (_dockOpen) Container(width: 1, color: EditorColors.border),
           Expanded(
-            child: Stack(
+            child: Column(
               children: [
-                SchematicCanvas(controller: _zoomController),
-                const Positioned(
-                  right: 8,
-                  bottom: 8,
-                  child: MinimapPlaceholder(),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      SchematicCanvas(controller: _zoomController),
+                      const Positioned(
+                        top: 12,
+                        right: 12,
+                        child: MinimapPlaceholder(),
+                      ),
+                      Positioned(
+                        bottom: 12,
+                        left: 12,
+                        child: ZoomPill(
+                          controller: _zoomController,
+                          onZoomIn: () => _zoom(1.25),
+                          onZoomOut: () => _zoom(0.8),
+                          onReset: () =>
+                              _zoomController.value = Matrix4.identity(),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: ZoomControls(
-                    onZoomIn: () => _zoom(1.25),
-                    onZoomOut: () => _zoom(0.8),
-                    onReset: () => _zoomController.value = Matrix4.identity(),
+                Container(height: 1, color: EditorColors.border),
+                SizedBox(
+                  height: 192,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Expanded(child: ComponentLibraryBar()),
+                      Container(width: 1, color: EditorColors.border),
+                      const SizedBox(width: 216, child: ToolPad()),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-          const ComponentLibraryBar(),
-        ],
-      ),
-      floatingActionButton: const ToolPad(),
-    );
-  }
-}
-
-/// Left project/file panel: save action + file entries.
-class ProjectPanel extends ConsumerWidget {
-  const ProjectPanel({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final name = ref.watch(sessionProvider.select((s) => s.active?.name ?? ''));
-    final count = ref.watch(sessionProvider.select(
-        (s) => s.active == null ? 0 : s.active!.components.length + s.active!.wires.length));
-    return Drawer(
-      child: ListView(
-        children: [
-          DrawerHeader(child: Text(name)),
-          ListTile(
-            leading: const Icon(Icons.save),
-            title: const Text('Save'),
-            subtitle: Text('$count items'),
-            onTap: () async {
-              await ref
-                  .read(sessionProvider.notifier)
-                  .saveCurrent(await FileProjectStorage.appDir());
-              if (context.mounted) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Project saved')),
-                );
-              }
-            },
-          ),
-          const ListTile(
-            leading: Icon(Icons.code),
-            title: Text('Firmware (placeholder)'),
-          ),
         ],
       ),
     );
   }
 }
 
-/// Live minimap arrives later; keeps layout space (PRD §28).
+/// Stitch radar minimap — dotted field + viewport-rect outline.
+/// Live viewport tracking is planned; layout + styling are exact.
 class MinimapPlaceholder extends StatelessWidget {
   const MinimapPlaceholder({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const SizedBox(
-      width: 96,
-      height: 72,
-      child: Card(child: Center(child: Text('Minimap'))),
-    );
-  }
+  Widget build(BuildContext context) => Tooltip(
+    message: 'Minimap (live tracking planned)',
+    child: Container(
+      width: 256,
+      height: 160,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.8),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.2),
+          width: 2,
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: CustomPaint(
+        painter: _MinimapGridPainter(),
+        child: Center(
+          child: Container(
+            width: 128,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              border: Border.all(color: Colors.white, width: 2),
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
-class ZoomControls extends StatelessWidget {
+class _MinimapGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = const Color.fromRGBO(255, 255, 255, 0.14);
+    for (var x = 0.0; x < size.width; x += 8) {
+      for (var y = 0.0; y < size.height; y += 8) {
+        canvas.drawCircle(Offset(x, y), 1, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// Floating zoom cluster — Stitch pill: `-` · live `%` · `+` · reset.
+class ZoomPill extends StatelessWidget {
+  final TransformationController controller;
   final VoidCallback onZoomIn;
   final VoidCallback onZoomOut;
   final VoidCallback onReset;
-  const ZoomControls({
+  const ZoomPill({
     super.key,
+    required this.controller,
     required this.onZoomIn,
     required this.onZoomOut,
     required this.onReset,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(4),
+    decoration: BoxDecoration(
+      color: EditorColors.panel.withValues(alpha: 0.95),
+      border: Border.all(color: EditorColors.borderLight),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton.filledTonal(
-          tooltip: 'Zoom in',
-          onPressed: onZoomIn,
-          icon: const Icon(Icons.add),
-        ),
-        IconButton.filledTonal(
+        _ZoomButton(
           tooltip: 'Zoom out',
+          icon: Icons.remove,
           onPressed: onZoomOut,
-          icon: const Icon(Icons.remove),
         ),
-        IconButton.filledTonal(
+        ValueListenableBuilder<Matrix4>(
+          valueListenable: controller,
+          builder: (context, v, _) => SizedBox(
+            width: 52,
+            child: Text(
+              '${(v.getMaxScaleOnAxis() * 100).round()}%',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontFamily: EditorColors.fontMono,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ),
+        _ZoomButton(tooltip: 'Zoom in', icon: Icons.add, onPressed: onZoomIn),
+        Container(
+          width: 1,
+          height: 20,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          color: EditorColors.border,
+        ),
+        _ZoomButton(
           tooltip: 'Reset zoom',
+          icon: Icons.fullscreen,
+          size: 18,
           onPressed: onReset,
-          icon: const Icon(Icons.center_focus_strong),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
+
+class _ZoomButton extends StatelessWidget {
+  final String tooltip;
+  final IconData icon;
+  final double size;
+  final VoidCallback onPressed;
+  const _ZoomButton({
+    required this.tooltip,
+    required this.icon,
+    this.size = 20,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 36,
+    height: 36,
+    child: IconButton(
+      tooltip: tooltip,
+      padding: EdgeInsets.zero,
+      icon: Icon(icon, size: size, color: EditorColors.muted),
+      onPressed: onPressed,
+    ),
+  );
 }

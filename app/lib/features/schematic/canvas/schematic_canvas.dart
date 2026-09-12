@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../components/models/component.dart';
 import '../../project/project_manager.dart';
+import '../../simulation/simulation.dart';
 import '../editor_state.dart';
 import '../geometry.dart';
 import '../models/schematic.dart';
@@ -49,10 +50,12 @@ class _SchematicCanvasState extends ConsumerState<SchematicCanvas> {
     if (pending != null) {
       final id = 'c${DateTime.now().microsecondsSinceEpoch}';
       session.addComponent(
-          makeComponent(id, pending, snap(pos.dx), snap(pos.dy)));
+        makeComponent(id, pending, snap(pos.dx), snap(pos.dy)),
+      );
       ref.read(pendingPlacementProvider.notifier).state = null;
       ref.read(selectedIdProvider.notifier).state = id;
       ref.read(activeToolProvider.notifier).state = SchematicTool.select;
+      refreshSimulation(ref);
       return;
     }
 
@@ -69,24 +72,33 @@ class _SchematicCanvasState extends ConsumerState<SchematicCanvas> {
       } else if (wireStart != key) {
         final a = wireStart.split('.');
         final b = key.split('.');
-        session.addWire(Wire(
-          id: 'w${DateTime.now().microsecondsSinceEpoch}',
-          fromComponent: a[0],
-          fromPin: a[1],
-          toComponent: b[0],
-          toPin: b[1],
-        ));
+        session.addWire(
+          Wire(
+            id: 'w${DateTime.now().microsecondsSinceEpoch}',
+            fromComponent: a[0],
+            fromPin: a[1],
+            toComponent: b[0],
+            toPin: b[1],
+          ),
+        );
         ref.read(pendingWireProvider.notifier).state = null;
       }
+      refreshSimulation(ref);
       return;
     }
 
     final hit = hitComponent(comps, pos, AppConstants.gridStep * 1.1);
     switch (tool) {
       case SchematicTool.delete:
-        if (hit != null) session.deleteComponent(hit);
+        if (hit != null) {
+          session.deleteComponent(hit);
+          refreshSimulation(ref);
+        }
       case SchematicTool.rotate:
-        if (hit != null) session.rotateComponent(hit);
+        if (hit != null) {
+          session.rotateComponent(hit);
+          refreshSimulation(ref);
+        }
       case SchematicTool.select:
         ref.read(selectedIdProvider.notifier).state = hit;
         if (hit != null) {
@@ -94,6 +106,7 @@ class _SchematicCanvasState extends ConsumerState<SchematicCanvas> {
           if (c.type == ComponentType.switch_ ||
               c.type == ComponentType.pushButton) {
             session.toggleSwitch(hit);
+            refreshSimulation(ref);
           }
         }
       case SchematicTool.move:
@@ -106,8 +119,7 @@ class _SchematicCanvasState extends ConsumerState<SchematicCanvas> {
   void _panStart(DragStartDetails d) {
     if (ref.read(activeToolProvider) != SchematicTool.move) return;
     final pos = _toScene(d.globalPosition);
-    final hit = hitComponent(
-        _components, pos, AppConstants.gridStep * 1.1);
+    final hit = hitComponent(_components, pos, AppConstants.gridStep * 1.1);
     if (hit != null) {
       setState(() {
         _dragId = hit;
@@ -132,6 +144,7 @@ class _SchematicCanvasState extends ConsumerState<SchematicCanvas> {
         _dragId = null;
         _panLocked = false;
       });
+      refreshSimulation(ref);
     }
   }
 
@@ -161,25 +174,23 @@ class _SchematicCanvasState extends ConsumerState<SchematicCanvas> {
             selectedId: selectedId,
             simStates: simStates,
           ),
-          child: const CustomPaint(
-            size: Size.infinite,
-            painter: GridPainter(),
-          ),
+          child: const CustomPaint(size: Size.infinite, painter: GridPainter()),
         ),
       ),
     );
   }
 }
 
-/// Dotted grid background (PRD §31).
+/// Dotted grid background — Stitch `cad-grid`: #050505 with white 16% dots.
 class GridPainter extends CustomPainter {
   const GridPainter();
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.grey.shade300;
-    for (var x = 0.0; x < size.width; x += AppConstants.gridStep) {
-      for (var y = 0.0; y < size.height; y += AppConstants.gridStep) {
+    canvas.drawColor(const Color(0xFF050505), BlendMode.src);
+    final paint = Paint()..color = const Color.fromRGBO(255, 255, 255, 0.16);
+    for (var x = 0.0; x < size.width; x += 20) {
+      for (var y = 0.0; y < size.height; y += 20) {
         canvas.drawCircle(Offset(x, y), 1, paint);
       }
     }
@@ -205,12 +216,12 @@ class _SchematicPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final unit = AppConstants.gridStep;
-    const ink = Colors.black87;
-    const accent = Colors.amber;
+    const ink = Color(0xFFE8E8E8);
+    const accent = Color(0xFFF4F4F4);
     final byId = {for (final c in components) c.id: c};
 
     final wirePaint = Paint()
-      ..color = Colors.black54
+      ..color = const Color(0xFF9A9A9A)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
 
@@ -237,22 +248,25 @@ class _SchematicPainter extends CustomPainter {
       if (c.id == selectedId) {
         canvas.drawRect(
           Rect.fromCenter(
-              center: Offset.zero, width: 2.6 * unit, height: 2.2 * unit),
+            center: Offset.zero,
+            width: 2.6 * unit,
+            height: 2.2 * unit,
+          ),
           Paint()
-            ..color = Colors.blue
+            ..color = Colors.white
             ..style = PaintingStyle.stroke
             ..strokeWidth = 1.5,
         );
       }
       canvas.restore();
-      paintTag(canvas, c.id, Offset(c.x, c.y), unit, Colors.black54);
+      paintTag(canvas, c.id, Offset(c.x, c.y), unit, const Color(0xFF7E7E7E));
     }
     for (final c in components) {
       for (final p in c.pins) {
         canvas.drawCircle(
           pinWorld(c, p),
           3,
-          Paint()..color = Colors.black45,
+          Paint()..color = const Color(0xFFB5B5B5),
         );
       }
     }

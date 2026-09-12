@@ -1,32 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/editor_theme.dart';
 import '../editor_state.dart';
 import '../models/schematic.dart';
 import '../tools/schematic_tools.dart';
 
-/// 3×3 contextual tool pad (PRD §33). Selects the active editor tool.
+/// Right 3×3 CAD tool pad — icon + label grid bound to the existing
+/// [activeToolProvider]. Select renders active-white per Stitch.
+/// Tool actions beyond selection state are roadmap-gated.
 class ToolPad extends ConsumerWidget {
   const ToolPad({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final active = ref.watch(activeToolProvider);
-    return SizedBox(
-      width: 168,
+    return Container(
+      color: EditorColors.pad,
+      padding: const EdgeInsets.all(8),
       child: GridView.count(
-        shrinkWrap: true,
         crossAxisCount: 3,
-        childAspectRatio: 0.85,
+        mainAxisSpacing: 6,
+        crossAxisSpacing: 6,
+        childAspectRatio: 1.15,
         children: [
           for (final t in defaultTools)
-            _ToolButton(
+            _ToolCell(
               tool: t,
               active: t == active,
               onTap: () {
                 ref.read(activeToolProvider.notifier).state = t;
                 if (t != SchematicTool.wire) {
                   ref.read(pendingWireProvider.notifier).state = null;
+                }
+                if (t != SchematicTool.select &&
+                    t != SchematicTool.move &&
+                    t != SchematicTool.wire) {
+                  ref.read(pendingPlacementProvider.notifier).state = null;
                 }
               },
             ),
@@ -36,36 +46,49 @@ class ToolPad extends ConsumerWidget {
   }
 }
 
-class _ToolButton extends StatelessWidget {
+class _ToolCell extends StatelessWidget {
   final SchematicTool tool;
   final bool active;
   final VoidCallback onTap;
-  const _ToolButton(
-      {required this.tool, required this.active, required this.onTap});
+  const _ToolCell({
+    required this.tool,
+    required this.active,
+    required this.onTap,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(2),
-      child: FilledButton.tonal(
-        style: FilledButton.styleFrom(
-          padding: EdgeInsets.zero,
-          backgroundColor: active ? Theme.of(context).colorScheme.primary : null,
-          foregroundColor:
-              active ? Theme.of(context).colorScheme.onPrimary : null,
+  Widget build(BuildContext context) => Tooltip(
+    message: tool == SchematicTool.more
+        ? 'More tools (planned)'
+        : '${toolLabel(tool)} tool',
+    child: GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: active ? Colors.white : EditorColors.card,
+          border: active ? null : Border.all(color: EditorColors.border),
+          borderRadius: BorderRadius.circular(6),
         ),
-        onPressed: onTap,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(toolLabel(tool)[0],
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-            Text(toolLabel(tool),
-                style: const TextStyle(fontSize: 9),
-                overflow: TextOverflow.ellipsis),
+            Icon(
+              toolIcon(tool),
+              size: 20,
+              color: active ? Colors.black : EditorColors.bright,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              toolLabel(tool),
+              style: TextStyle(
+                color: active ? Colors.black : EditorColors.muted,
+                fontWeight: active ? FontWeight.bold : FontWeight.w500,
+                fontSize: 10,
+              ),
+            ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }
