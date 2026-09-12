@@ -25,7 +25,7 @@ set → Editor. No routes yet.
 
 ## Planned (not in Phase 0)
 
-- **Open Project** via file picker for `.dyamm` files (Phase 2).
+- **Open Project** via file picker for `.dyamm` files (Phase 4).
 - **Import Project** (e.g. `.zip` AVR sources).
 - **Project information/settings** (rename, MCU target, storage location).
 - Persistence of any kind — session is lost on restart.
@@ -34,10 +34,10 @@ set → Editor. No routes yet.
 
 Engineering workspace, see `UI_ARCHITECTURE.md`. Layout only; engines unwired.
 
-## Project contents (Phase 2, format TBD)
+## Project contents (Phase 4, format TBD)
 
 A project eventually contains: configuration · schematic data · firmware/sources ·
 build artifacts (ELF/HEX) · simulation configuration.
 
-Exact `.dyamm` file format: **TBD** — decided during Phase 2 implementation, not before.
+Exact `.dyamm` file format: **TBD** — decided during Phase 4 implementation, not before.
 No invented schema is documented here.

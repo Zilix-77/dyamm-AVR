@@ -13,6 +13,6 @@ ATmega32 extends it with `Firmware · EmulatorInstance · Bridge` (§24 → `atm
 New types join `ComponentType` + `componentLibrary` + symbol/params — no simulator rewrite.
 `ComponentTile` renders any entry; the solver resolves models by type string.
 
-## Growth path (§§25–26, Phase 6)
+## Growth path (§§25–26, Phase 8)
 MVP → digital → analog → sensors → displays → motors → comms → more MCUs (all behind
 `McuInterface`, §54). Each addition ships model + symbol + solver hook + library entry.

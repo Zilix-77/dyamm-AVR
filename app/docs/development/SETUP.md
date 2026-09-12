@@ -9,6 +9,6 @@
 
 ## Missing / TBD
 
-- `avr-gcc` not on PATH — required from Phase 4 (test firmware builds). Install: TBD.
+- `avr-gcc` not on PATH — required in Phase 1 (test firmware builds). Install: TBD.
 - Emulator/device used for on-device runs: TBD.
 - JDK/Gradle versions: as installed by Flutter toolchain; pin down if builds break.

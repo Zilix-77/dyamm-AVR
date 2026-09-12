@@ -1,7 +1,7 @@
 # Schematic Editor
 
-> Source: PRD §§6.1, 31, 33–35, Phase 1. Code: `lib/features/schematic/`.
-> Status: Phase 0 static shell; editing and sim binding are Planned (Phase 1/3+).
+> Source: PRD §§6.1, 31, 33–35, Phase 3. Code: `lib/features/schematic/`.
+> Status: Phase 0 static shell; editing Planned (Phase 3), sim engine done (Phase 1).
 
 ## Canvas (implemented, Phase 0)
 
@@ -10,13 +10,13 @@ Dotted grid (`AppConstants.gridStep`), `InteractiveViewer` pan/zoom
 buttons (`ZoomControls`); `MinimapPlaceholder` box reserves layout space.
 Canvas content is static placeholder text — it does not render project components yet.
 
-## Editing (Planned, Phase 1)
+## Editing (Planned, Phase 3)
 
 Place · move · rotate · wire/net create + edit · select/multi-select · delete ·
 cut/copy/paste/duplicate · labels · power · properties. `SchematicTool` enum +
 `defaultTools` order already back the visual 3×3 pad; actions unwired.
 
-## Sim binding (UI state only, engine Planned Phase 3+)
+## Sim binding (UI state only; engine done Phase 1, live data later)
 
 Toolbar Run/Pause/Stop → `SimController` (toggles `SimState`, nothing else).
 `SimulationSnapshot` exists but no live data feeds it yet.

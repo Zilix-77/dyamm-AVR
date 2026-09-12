@@ -3,7 +3,7 @@
 > Source: PRD §§9–10, 12–13, 16, 62–63. Code: `native/` + `lib/bridge/native_bridge.dart`.
 
 ## Modules
-- `native/avr/` — dyamm-AVR emulator + ATmega32 config (Phase 4). Contract: `AvrEngine`
+- `native/avr/` — dyamm-AVR emulator + ATmega32 config (Phase 1). Contract: `AvrEngine`
   (`loadElf`, `readGpio`). Emulator hidden behind the interface so it can be swapped (§16).
 - `native/circuit/` — SPICE-style solver (Phase 7). Contract: `CircuitSolver.solve(netlist)`.
   Engine **undecided**: RSpice vs ngspice — pick by Android compat, perf, memory, API,

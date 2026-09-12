@@ -7,71 +7,63 @@
 > Principle: SimAVR is a **project-based engineering environment**. The simulator is
 > the engine underneath the application. User flow:
 > Launch App → Project Manager → New/Open Project → Main Editor → Build/Edit/Simulate.
+>
+> Reordered: the ATmega32 emulator comes first (it validates the native foundation),
+> the application UI layers follow.
 
-## PHASE 0 — App Foundation
-- [ ] Initialize project structure
-- [ ] Configure Flutter + Dart + Riverpod
-- [ ] Verify Android build
-- [ ] Create initial app shell
-- [ ] Set up Git repository
+## PHASE 0 — App Foundation ✅ complete
+- [x] Initialize project structure
+- [x] Configure Flutter + Dart + Riverpod
+- [x] Verify Android build
+- [x] Project Manager → Editor flow (in-memory session)
+- [x] Schematic editor shell
+- [x] Tests + debug APK
 
-## PHASE 1 — Main Editor UI
-- [ ] Project Manager: New / Open / Recent projects
-- [ ] Main application shell (top bar, panels)
-- [ ] Schematic canvas (pan, zoom, grid)
-- [ ] Component library UI (search, categories)
-- [ ] 3×3 contextual tool pad
-- [ ] Movable/resizable/collapsible panels
-- [ ] Simulation controls (run/pause/stop UI, unwired)
+## PHASE 1 — ATmega32 Emulator on Android ✅ complete (with caveat)
+- [x] Native bridge: JNI + CMake + NDK wiring
+- [x] Vendor minimal simavr subset (core + ATmega32)
+- [x] HEX firmware loading (ELF strategy: Phase 2 prep)
+- [x] Run cycles, reset behavior
+- [x] GPIO state observation
+- [x] Registers, PC/SP/SREG, Flash, SRAM, EEPROM via simavr core
+- [ ] Timers, interrupts: compiled in, dedicated exercise is follow-up
+- [x] On-device test: known HEX toggles GPIO (PASS ×5, TEMP screen since removed)
+- [x] Done when: known HEX runs, GPIO observed on device
 
-## PHASE 2 — Project System
-- [ ] Design project file format (`.dyamm`)
-- [ ] Save / open / restore projects
-- [ ] Schematic data persistence
-- [ ] Firmware/source files in project
-- [ ] Project configuration
-- [ ] Validate project files, handle corruption
+## PHASE 2 — AVR-GCC Firmware Pipeline (prep: research only, no implementation yet)
+- [x] Prep: exec-policy route, canadian-cross requirement, size/ABI + licensing notes
+- [ ] Spike: `avr-gcc --version` + blink compile on-device from `nativeLibraryDir`
+- [ ] Package: toolchain as `lib/*.so` entries per ABI (arm64 first)
+- [ ] `Toolchain` MethodChannel + build panel + error formats
+- [ ] avr-libc headers/libs, APK-size tracking, GPL source offer
 
-## PHASE 3 — Native Engine Foundation
-- [ ] Flutter ↔ native bridge (`lib/bridge/`)
-- [ ] C++ module layout (`native/`)
-- [ ] Android NDK + CMake wiring
-- [ ] Verify native call round-trip on device
+## PHASE 3 — Main Editor UI
+- [ ] Canvas editing, component placement/movement
+- [ ] Component library interactions
+- [ ] Tool pad actions, panels/dock, minimap
 
-## PHASE 4 — ATmega32 + simavr
-- [ ] Vendor minimal simavr subset (core + ATmega32, no gdb/dwarf)
-- [ ] ATmega32 emulation on Android
-- [ ] Firmware ELF loading (libelf strategy TBD — HEX stepping stone acceptable)
-- [ ] GPIO/peripheral state observation
-- [ ] Success: known ELF runs, GPIO toggles on-device
+## PHASE 3 — Main Editor UI
+- [ ] Canvas editing, component placement/movement
+- [ ] Component library interactions
+- [ ] Tool pad actions, panels/dock, minimap
 
-## PHASE 5 — AVR-GCC Firmware Pipeline
-- [ ] AVR-GCC + AVR-Libc + binutils on Android
-- [ ] C firmware compilation, ELF output, HEX export
-- [ ] Compiler error reporting in build panel
-- [ ] Test on-device compilation
+## PHASE 4 — Project System
+- [ ] `.dyamm` format, save/open/restore, validation
 
-## PHASE 6 — MCU ↔ Digital Circuit Bridge
-- [ ] ATmega32 GPIO ↔ digital circuit components
-- [ ] Pin-to-node mapping, HIGH/LOW propagation
-- [ ] Input detection, direction handling
-- [ ] Test LED + GPIO, button + GPIO
+## PHASE 5 — MCU ↔ Digital Circuit Bridge
+- [ ] GPIO ↔ LED/button, pin mapping, propagation
 
-## PHASE 7 — Circuit Simulation Engine
-- [ ] Electrical network simulation (solver selection TBD)
-- [ ] Resistors, capacitors, inductors, diodes, LEDs, etc.
-- [ ] Voltage/current measurement
+## PHASE 6 — Circuit Simulation Engine
+- [ ] Solver selection + R/C/L/diode/LED + measurement
 
-## PHASE 8 — Analog MCU ↔ Circuit Bridge
-- [ ] ADC, PWM, sensors, analog signals
+## PHASE 7 — Analog MCU ↔ Circuit Bridge
+- [ ] ADC, PWM, sensors
 
-## PHASE 9 — Full Component System
-- [ ] Expanded library: displays, motors, logic ICs, comms
-- [ ] Additional MCUs behind `McuInterface`
+## PHASE 8 — Full Component System
+- [ ] Displays, motors, logic ICs, more MCUs
 
-## PHASE 10 — Polish / Performance / Testing
-- [ ] Profile and optimize sim loop, memory, binary size
-- [ ] Crash handling, low-end device testing, large circuits
+## PHASE 9 — Polish / Performance / Testing
+- [ ] Profile, optimize, crash handling, low-end + large-circuit tests
 
-## PHASE 11 — Release
-- [ ] App icon, screenshots, release notes, final QA, release build
+## PHASE 10 — Release
+- [ ] Icon, screenshots, notes, QA, release build

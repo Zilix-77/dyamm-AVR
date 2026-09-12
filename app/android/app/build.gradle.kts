@@ -25,6 +25,22 @@ android {
         versionName = flutter.versionName
     }
 
+    // TEMP Spike A: extract .so files (incl. the spike hello binary) so they
+    // stay executable under nativeLibraryDir on Android 10+.
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
+    // Phase 1: simavr subset + JNI bridge (cpp/CMakeLists.txt).
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

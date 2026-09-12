@@ -1,4 +1,4 @@
-# Circuit Solver — Status: Planned (Phase 7)
+# Circuit Solver — Status: Planned (Phase 6)
 
 > Per `AGENTS.md`: documents only verified implementation. Nothing here is implemented yet.
 

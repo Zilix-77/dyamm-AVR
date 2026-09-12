@@ -6,5 +6,5 @@
   of existing C simulation code on a broad range of Android devices (PRD §§42, 56).
 - Decision: Engines in C++ built with Android NDK + CMake; Flutter talks to them via
   FFI for the hot loop (solver/AVR/bridge) and MethodChannel for the toolchain.
-- Consequences: `native/` module layout; `externalNativeBuild` wiring in Phase 3;
+- Consequences: `native/` module layout; `externalNativeBuild` wiring in Phase 1;
   keep engine code platform-independent where practical.

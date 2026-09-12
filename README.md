@@ -19,5 +19,6 @@ The simulator is the engine underneath the application; the experience starts wi
 - Overview: [app/docs/00_PROJECT_OVERVIEW.md](app/docs/00_PROJECT_OVERVIEW.md)
 - Doc/agent rules: [AGENTS.md](AGENTS.md)
 
-Development order: Phase 0 App Foundation -> Project Manager -> Main Editor -> Project
-System -> Native Engine -> ATmega32/simavr -> AVR-GCC -> bridges -> circuit sim -> release.
+Development order: Phase 0 App Foundation -> ATmega32 emulator (Phase 1) ->
+AVR-GCC (Phase 2) -> Main Editor -> Project System -> bridges -> circuit sim ->
+release.

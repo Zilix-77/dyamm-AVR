@@ -1,4 +1,4 @@
-# ATmega32 — Status: Planned (Phase 4)
+# ATmega32 — Status: In progress (Phase 1)
 
 > Component model exists in Dart (`lib/features/mcu/`); emulation is not implemented.
 

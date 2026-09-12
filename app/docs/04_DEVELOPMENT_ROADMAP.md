@@ -4,28 +4,28 @@
 > Principle: SimAVR is a **project-based engineering environment** — the simulator is the
 > engine underneath the application. User flow: Launch → Project Manager → New/Open
 > Project → Main Editor → Build/Edit/Simulate.
+>
+> Reordered: the emulator (Phase 1) validates the native foundation; AVR-GCC
+> (Phase 2) follows so firmware can be built on-device before the UI layers.
 
 | Phase | Goal | Done when |
 |---|---|---|
-| 0 App Foundation | Flutter shell, Android build, Git | App launches on device |
-| 1 Main Editor UI | Project Manager (New/Open/Recent), shell, canvas, library, tool pad, panels, sim controls (unwired) | Editor usable without engine |
-| 2 Project System | `.dyamm` save/open/restore, schematic + firmware + config persistence | Round-trip project on device |
-| 3 Native foundation | `lib/bridge/`, `native/` C++, NDK + CMake, round-trip call | Native call returns on device |
-| 4 ATmega32 + simavr | Minimal simavr subset, ELF loading, GPIO observed | Known ELF toggles GPIO on-device |
-| 5 AVR-GCC pipeline | On-device compile → ELF/HEX, error panel | On-device compile + run |
-| 6 Digital bridge | GPIO ↔ digital components (LED, button) | MVP circuit responds |
-| 7 Circuit solver | Network sim, R/C/L/diode/LED, measurement | Voltages/currents correct |
-| 8 Analog bridge | ADC, PWM, sensors | Analog loop works |
-| 9 Components | Displays, motors, logic ICs, more MCUs | Per PRD §§26/55 |
-| 10 Polish/perf/test | Profile, optimize, crash handling, low-end + large-circuit tests | Release criteria met |
-| 11 Release | Icon, screenshots, notes, QA, build | Released |
-
-Engines (Phases 3+) are built **underneath** the application foundation (Phases 0–2),
-not before it.
+| 0 App Foundation ✅ | Flutter shell, PM → Editor, Android build | Complete |
+| 1 ATmega32 emulator ✅ | JNI/CMake/NDK, simavr subset, HEX load, GPIO observed | Known HEX toggled GPIO on-device (PASS ×5) |
+| 2 AVR-GCC pipeline | Prep (research only) → on-device compile → ELF/HEX, error panel | On-device compile + run |
+| 3 Main Editor UI | Canvas editing, library interactions, tool pad, panels, minimap | Editor usable without engine |
+| 4 Project System | `.dyamm` save/open/restore, persistence | Round-trip project on device |
+| 5 Digital bridge | GPIO ↔ digital components (LED, button) | MVP circuit responds |
+| 6 Circuit solver | Network sim, R/C/L/diode/LED, measurement | Voltages/currents correct |
+| 7 Analog bridge | ADC, PWM, sensors | Analog loop works |
+| 8 Components | Displays, motors, logic ICs, more MCUs | Per PRD §§26/55 |
+| 9 Polish/perf/test | Profile, optimize, crash handling, device tests | Release criteria met |
+| 10 Release | Icon, screenshots, notes, QA, build | Released |
 
 ## Status
 
-Phase 0 complete: PM-first launch, in-memory session (create/open/close + validation),
-editor shell (drawer, zoom controls, minimap placeholder), `flutter analyze` clean,
-7/7 tests pass, debug APK builds. Native/FFI/MethodChannel boundaries are Phase 3 scope,
-not Phase 0 exit criteria. Next: Phase 1 Main Editor UI.
+Phase 0 complete. Phase 1 complete with caveat: core/run/GPIO verified on-device
+(PASS ×5, TEMP screen since removed); timers/interrupts compiled in, dedicated
+exercise is follow-up. Phase 2 prep: Spike A PASS — exec-from-nativeLibraryDir
+verified on-device (exit 0, token returned); Arduino-based cross-build plan next.
+Phases 3+ remain Planned.

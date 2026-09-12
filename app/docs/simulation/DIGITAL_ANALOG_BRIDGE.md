@@ -1,4 +1,4 @@
-# Digital/Analog Bridge — Status: Planned (Phases 6/8)
+# Digital/Analog Bridge — Status: Planned (Phases 5/7)
 
 > Per `AGENTS.md`: documents only verified implementation. Nothing here is implemented yet.
 

@@ -127,7 +127,7 @@ Do not wait until the entire project is finished.
 
 For example:
 
-### Phase 4
+### Phase 1
 
 Implement basic simavr integration.
 
@@ -137,7 +137,7 @@ Update:
 
 Document only what currently works.
 
-### Phase 4 (continued)
+### Phase 1 (continued)
 
 Add ATmega32 firmware loading.
 
@@ -149,7 +149,7 @@ and, if applicable:
 
 `docs/firmware/ELF_HEX_HANDLING.md`
 
-### Phase 5
+### Phase 2
 
 Add AVR-GCC compilation.
 
@@ -157,7 +157,7 @@ Update:
 
 `docs/firmware/AVR_GCC_PIPELINE.md`
 
-### Phase 6
+### Phase 5
 
 Add GPIO → circuit communication.
 

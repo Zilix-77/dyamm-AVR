@@ -1,14 +1,18 @@
-# Native Build — Status: Planned (Phase 3–4)
+# Native Build — Status: In progress (Phase 1)
 
 > Per `AGENTS.md`: documents only verified implementation. No native code exists yet.
 
-## Plan
+## Implemented (Phase 1)
 
-- NDK 28.2.13676358 + CMake 3.22.1 (installed, verified by listing SDK dirs).
-- simavr subset compiled as a static lib; exclude `sim_gdb.c`, `sim_dwarf.c`; VCD optional.
-- Upstream Makefiles are POSIX-only — a dedicated `CMakeLists.txt` is required for Android.
-- JNI entry points: init / loadFirmware / runCycles / getGpio / terminate (names TBD at implementation).
+- `android/app/src/main/cpp/CMakeLists.txt` (min 3.22.1): `simavr_jni` shared lib,
+  explicit source list, no `-DHAVE_LIBELF`, links `log` + `m`.
+- Wired via `externalNativeBuild` in `app/build.gradle.kts` (cmake 3.22.1).
+- Two upstream-build findings recorded: no `AVR_CORE` define (breaks `sim_avr.h`
+  logger typedef); `cores/sim_megax.c` required at link (`mx_init`/`mx_reset`).
+- `assembleDebug` verified: 32 TUs compile, `libsimavr_jni.so` links.
 
-## To Be Verified
+## Executable packaging (Spike A, Phase 2 prep)
 
-CMake file, compiler flags, ABI splits, `.so` size. Documented when built.
+- Binaries executed on-device must ship as `lib/<abi>/lib*.so` and extract with
+  `packaging.jniLibs.useLegacyPackaging = true` (AGP 9 rejects the manifest attr).
+- Verified: NDK-built PIE hello exec'd from `nativeLibraryDir`, exit 0, targetSdk 36.

@@ -1,16 +1,19 @@
-# Testing — Status: Partial (app shell only)
+# Testing — Status: Partial (app + native compile)
 
 ## Verified
 
-- `flutter test` passes: widget smoke test (workspace shell) + unit test
-  (component `.dyamm` JSON serialization) in `app/test/`.
+- `flutter test` passes (8): widget smoke tests + session unit tests +
+  component JSON test + `PortB.unpack` test.
+- Fixture `atmega32_blink.hex` verified by `avr-objdump` disassembly
+  (`sbi 0x17,0; sbi 0x18,0; rjmp .`).
+- `assembleDebug` acts as the native compile gate (32 TUs + link).
 
 ## Planned
 
-- Phase 1: widget tests for Project Manager, canvas interactions, panels, tool pad.
-- Phase 2: project save/open round-trip + corruption tests.
-- Phase 3–4: native round-trip test; known-ELF → GPIO assertion on device.
-- Phase 7: perf tests at 10/50/100/500+ components (PRD §50).
+- Phase 3: widget tests for canvas interactions, panels, tool pad.
+- Phase 4: project save/open round-trip + corruption tests.
+- Phase 1: native round-trip test; known-HEX → GPIO assertion on device.
+- Phase 9: perf tests at 10/50/100/500+ components (PRD §50).
 
 ## TBD
 

@@ -1,4 +1,4 @@
-# Build System — Status: Planned (Phase 3)
+# Build System — Status: In progress (Phase 1)
 
 > Per `AGENTS.md`: documents only verified implementation. No native build exists yet.
 
@@ -12,7 +12,7 @@
 ## Planned (Phase 3)
 
 - `app/android/app/src/main/cpp/` + `CMakeLists.txt`, wired via `externalNativeBuild`.
-- Vendored simavr subset copied at implementation time (Phase 4).
+- Vendored simavr subset copied at implementation time (Phase 1).
 
 ## To Be Verified
 
