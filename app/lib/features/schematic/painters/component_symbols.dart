@@ -8,13 +8,15 @@ import '../symbols.dart';
 class TileSymbol extends StatelessWidget {
   final ComponentType type;
   final Color ink;
-  const TileSymbol({super.key, required this.type, required this.ink});
+  final double size;
+  const TileSymbol(
+      {super.key, required this.type, required this.ink, this.size = 40});
 
   @override
   Widget build(BuildContext context) => CustomPaint(
-    size: const Size(40, 40),
-    painter: _TileSymbolPainter(type: type, ink: ink),
-  );
+        size: Size.square(size),
+        painter: _TileSymbolPainter(type: type, ink: ink),
+      );
 }
 
 class _TileSymbolPainter extends CustomPainter {

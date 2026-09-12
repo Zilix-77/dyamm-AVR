@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../components/models/component.dart';
+import '../../core/constants/app_constants.dart';
+import '../schematic/editor_state.dart';
 import 'services/project_storage.dart';
 
 export 'models/project.dart';
@@ -25,6 +27,12 @@ final sessionProvider = NotifierProvider<SessionController, ProjectSession>(
 enum CreateResult { ok, emptyName }
 
 class SessionController extends Notifier<ProjectSession> {
+  final List<Project> _past = [];
+  final List<Project> _future = [];
+
+  bool canUndo() => _past.isNotEmpty;
+  bool canRedo() => _future.isNotEmpty;
+
   @override
   ProjectSession build() => const ProjectSession();
 
@@ -32,6 +40,8 @@ class SessionController extends Notifier<ProjectSession> {
     final name = rawName.trim();
     if (name.isEmpty) return CreateResult.emptyName;
     final project = Project(name: name);
+    _past.clear();
+    _future.clear();
     state = ProjectSession(
       recents: [
         project,
@@ -40,10 +50,13 @@ class SessionController extends Notifier<ProjectSession> {
       ],
       active: project,
     );
+    _touchHistory();
     return CreateResult.ok;
   }
 
   void open(Project project) {
+    _past.clear();
+    _future.clear();
     state = ProjectSession(
       recents: [
         project,
@@ -52,9 +65,15 @@ class SessionController extends Notifier<ProjectSession> {
       ],
       active: project,
     );
+    _touchHistory();
   }
 
-  void close() => state = ProjectSession(recents: state.recents);
+  void close() {
+    _past.clear();
+    _future.clear();
+    state = ProjectSession(recents: state.recents);
+    _touchHistory();
+  }
 
   void addComponent(Component c) {
     _updateActive(components: [..._activeComponents, c]);
@@ -146,11 +165,24 @@ class SessionController extends Notifier<ProjectSession> {
   void _updateActive({List<Component>? components, List<Wire>? wires}) {
     final active = state.active;
     if (active == null) return;
+    _pushHistory(active);
     final updated = Project(
       name: active.name,
       components: components ?? active.components,
       wires: wires ?? active.wires,
     );
+    _setActive(updated);
+  }
+
+  /// Records [active] for undo, bounding the stack. Clears redo.
+  void _pushHistory(Project active) {
+    _past.add(active);
+    if (_past.length > AppConstants.historyLimit) _past.removeAt(0);
+    _future.clear();
+    _touchHistory();
+  }
+
+  void _setActive(Project updated) {
     state = ProjectSession(
       recents: [
         for (final p in state.recents)
@@ -159,5 +191,27 @@ class SessionController extends Notifier<ProjectSession> {
       ],
       active: updated,
     );
+  }
+
+  void _touchHistory() {
+    ref.read(historyVersionProvider.notifier).state++;
+  }
+
+  /// Reverses the last structural edit. No-op when history is empty.
+  void undo() {
+    final active = state.active;
+    if (_past.isEmpty || active == null) return;
+    _future.add(active);
+    _setActive(_past.removeLast());
+    _touchHistory();
+  }
+
+  /// Restores the last undone edit. No-op when redo is empty.
+  void redo() {
+    final active = state.active;
+    if (_future.isEmpty || active == null) return;
+    _past.add(active);
+    _setActive(_future.removeLast());
+    _touchHistory();
   }
 }

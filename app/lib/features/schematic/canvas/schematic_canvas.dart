@@ -49,8 +49,9 @@ class _SchematicCanvasState extends ConsumerState<SchematicCanvas> {
 
     if (pending != null) {
       final id = 'c${DateTime.now().microsecondsSinceEpoch}';
+      final snapOn = ref.read(snapEnabledProvider);
       session.addComponent(
-        makeComponent(id, pending, snap(pos.dx), snap(pos.dy)),
+        makeComponent(id, pending, snap(pos.dx, snapOn), snap(pos.dy, snapOn)),
       );
       ref.read(pendingPlacementProvider.notifier).state = null;
       ref.read(selectedIdProvider.notifier).state = id;
@@ -93,6 +94,14 @@ class _SchematicCanvasState extends ConsumerState<SchematicCanvas> {
         if (hit != null) {
           session.deleteComponent(hit);
           refreshSimulation(ref);
+        } else {
+          final wires = ref.read(sessionProvider).active?.wires ?? [];
+          final wireHit = hitWire(
+              comps, wires, pos, AppConstants.gridStep * 0.5);
+          if (wireHit != null) {
+            session.removeWire(wireHit);
+            refreshSimulation(ref);
+          }
         }
       case SchematicTool.rotate:
         if (hit != null) {
@@ -133,9 +142,10 @@ class _SchematicCanvasState extends ConsumerState<SchematicCanvas> {
     final id = _dragId;
     if (id == null) return;
     final pos = _toScene(d.globalPosition);
+    final snapOn = ref.read(snapEnabledProvider);
     ref
         .read(sessionProvider.notifier)
-        .moveComponent(id, snap(pos.dx), snap(pos.dy));
+        .moveComponent(id, snap(pos.dx, snapOn), snap(pos.dy, snapOn));
   }
 
   void _panEnd(DragEndDetails _) {
@@ -153,7 +163,19 @@ class _SchematicCanvasState extends ConsumerState<SchematicCanvas> {
     final session = ref.watch(sessionProvider);
     final selectedId = ref.watch(selectedIdProvider);
     final simStates = ref.watch(simStatesProvider);
+    final showGrid = ref.watch(showGridProvider);
     final active = session.active;
+    // Reports viewport size for the minimap. Guarded: no rebuild loop.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final box = context.findRenderObject();
+      if (box is RenderBox && box.hasSize) {
+        final size = box.size;
+        if (size.isFinite &&
+            ref.read(canvasSizeProvider) != size) {
+          ref.read(canvasSizeProvider.notifier).state = size;
+        }
+      }
+    });
     return InteractiveViewer(
       transformationController: _controller,
       boundaryMargin: const EdgeInsets.all(double.infinity),
@@ -174,7 +196,10 @@ class _SchematicCanvasState extends ConsumerState<SchematicCanvas> {
             selectedId: selectedId,
             simStates: simStates,
           ),
-          child: const CustomPaint(size: Size.infinite, painter: GridPainter()),
+          child: showGrid
+              ? const CustomPaint(
+                  size: Size.infinite, painter: GridPainter())
+              : const SizedBox.expand(),
         ),
       ),
     );
@@ -265,7 +290,7 @@ class _SchematicPainter extends CustomPainter {
       for (final p in c.pins) {
         canvas.drawCircle(
           pinWorld(c, p),
-          3,
+          4.5,
           Paint()..color = const Color(0xFFB5B5B5),
         );
       }
