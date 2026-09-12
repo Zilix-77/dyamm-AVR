@@ -1,40 +1,43 @@
 # Project Manager & Project System
 
-> Phase 1–2. SimAVR is project-based: the user experience begins here, not in the simulator.
+> SimAVR is project-based: the user experience begins here, not in the simulator.
+> Phase 0 implemented the Manager screen + in-memory session (see Status below).
 
-## First-run flow
+## First-run flow (implemented, Phase 0)
 
 ```text
-Launch → Project Manager → New/Open Project → Main Editor → Build/Edit/Simulate
+Launch → Project Manager → New/Open Project → Main Editor
 ```
 
-## Project Manager (Phase 1)
+`RootScreen` (`lib/app.dart`) switches on `sessionProvider.active`: null → Manager,
+set → Editor. No routes yet.
 
-Conceptually supports:
+## Project Manager (implemented, Phase 0)
 
-- **New Project** → project configuration (name, MCU, clock) → opens Main Editor
-- **Open Project** → file picker for existing `.dyamm` projects
-- **Recent Projects** → last-opened list with quick resume
-- **Import Project** → where applicable (e.g. `.zip` AVR sources into a new project)
-- **Project information/settings** → rename, MCU target, storage location
+`lib/features/project/project_manager_screen.dart`:
 
-## Main Editor (target layout)
+- **New Project** → name dialog; blank names rejected inline (`Enter a project name`);
+  names trimmed; creates in-memory `Project` and opens the editor.
+- **Recent Projects** → in-memory list, most-recent-first, tap to reopen.
+- Empty state card when there are no projects.
+- Session state: `ProjectSession { recents, active }` in `project_manager.dart`
+  (`create` / `open` / `close` / `addComponent`).
 
-Unchanged engineering workspace (see `UI_ARCHITECTURE.md`):
+## Planned (not in Phase 0)
 
-- Top application bar · project/file panel · large 2D schematic canvas · dotted grid
-- Component library with search/categories · simulation controls · minimap · zoom controls
-- 3×3 contextual tool pad · movable/resizable/collapsible panels
+- **Open Project** via file picker for `.dyamm` files (Phase 2).
+- **Import Project** (e.g. `.zip` AVR sources).
+- **Project information/settings** (rename, MCU target, storage location).
+- Persistence of any kind — session is lost on restart.
+
+## Main Editor (Phase 0 shell)
+
+Engineering workspace, see `UI_ARCHITECTURE.md`. Layout only; engines unwired.
 
 ## Project contents (Phase 2, format TBD)
 
-A project eventually contains:
-
-- project configuration
-- schematic data
-- firmware / source files
-- build artifacts (ELF/HEX)
-- simulation configuration
+A project eventually contains: configuration · schematic data · firmware/sources ·
+build artifacts (ELF/HEX) · simulation configuration.
 
 Exact `.dyamm` file format: **TBD** — decided during Phase 2 implementation, not before.
 No invented schema is documented here.

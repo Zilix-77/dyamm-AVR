@@ -16,15 +16,15 @@ const componentLibrary = [
 ];
 
 String componentLabel(ComponentType t) => switch (t) {
-      ComponentType.atmega32 => 'ATmega32',
-      ComponentType.resistor => 'R',
-      ComponentType.capacitor => 'C',
-      ComponentType.led => 'LED',
-      ComponentType.diode => 'Diode',
-      ComponentType.pushButton => 'Btn',
-      ComponentType.switch_ => 'SW',
-      ComponentType.potentiometer => 'Pot',
-      ComponentType.vcc => 'VCC',
-      ComponentType.gnd => 'GND',
-      ComponentType.dcSource => 'DC',
-    };
+  ComponentType.atmega32 => 'ATmega32',
+  ComponentType.resistor => 'R',
+  ComponentType.capacitor => 'C',
+  ComponentType.led => 'LED',
+  ComponentType.diode => 'Diode',
+  ComponentType.pushButton => 'Btn',
+  ComponentType.switch_ => 'SW',
+  ComponentType.potentiometer => 'Pot',
+  ComponentType.vcc => 'VCC',
+  ComponentType.gnd => 'GND',
+  ComponentType.dcSource => 'DC',
+};

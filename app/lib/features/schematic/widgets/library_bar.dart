@@ -14,7 +14,8 @@ class ComponentLibraryBar extends StatelessWidget {
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
-          for (final t in componentLibrary) ComponentTile(label: componentLabel(t)),
+          for (final t in componentLibrary)
+            ComponentTile(label: componentLabel(t)),
         ],
       ),
     );

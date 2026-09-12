@@ -15,7 +15,11 @@ class ToolPad extends StatelessWidget {
         crossAxisCount: 3,
         children: [
           for (final t in defaultTools)
-            IconButton(tooltip: t.name, onPressed: () {}, icon: Text(toolLabel(t))),
+            IconButton(
+              tooltip: t.name,
+              onPressed: () {},
+              icon: Text(toolLabel(t)),
+            ),
         ],
       ),
     );

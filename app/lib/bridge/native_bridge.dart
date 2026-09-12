@@ -17,5 +17,9 @@ class BuildConfigLike {
   final String mcu;
   final String fCpu;
   final String opt;
-  const BuildConfigLike({required this.mcu, required this.fCpu, required this.opt});
+  const BuildConfigLike({
+    required this.mcu,
+    required this.fCpu,
+    required this.opt,
+  });
 }

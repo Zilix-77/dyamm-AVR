@@ -8,7 +8,8 @@ class Atmega32 implements McuInterface {
   String get name => 'ATmega32';
 
   @override
-  Future<void> loadElf(String elfPath) => throw UnimplementedError('native AVR engine');
+  Future<void> loadElf(String elfPath) =>
+      throw UnimplementedError('native AVR engine');
 
   @override
   Future<void> step() => throw UnimplementedError('native AVR engine');

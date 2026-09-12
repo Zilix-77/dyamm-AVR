@@ -45,12 +45,14 @@ class Component {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'type': type.name,
-        'x': x,
-        'y': y,
-        'rotation': rotation,
-        'properties': properties,
-        'pins': [for (final p in pins) {'id': p.id, 'label': p.label}],
-      };
+    'id': id,
+    'type': type.name,
+    'x': x,
+    'y': y,
+    'rotation': rotation,
+    'properties': properties,
+    'pins': [
+      for (final p in pins) {'id': p.id, 'label': p.label},
+    ],
+  };
 }

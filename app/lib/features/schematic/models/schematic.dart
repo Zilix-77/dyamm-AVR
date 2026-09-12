@@ -1,5 +1,15 @@
 /// Schematic editing state (PRD §6.1, Phase 4).
-enum SchematicTool { select, move, wire, delete, cut, copy, paste, rotate, more }
+enum SchematicTool {
+  select,
+  move,
+  wire,
+  delete,
+  cut,
+  copy,
+  paste,
+  rotate,
+  more,
+}
 
 class Selection {
   final List<String> componentIds;

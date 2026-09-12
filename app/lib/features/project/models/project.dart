@@ -19,10 +19,10 @@ class Wire {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'from': '$fromComponent.$fromPin',
-        'to': '$toComponent.$toPin',
-      };
+    'id': id,
+    'from': '$fromComponent.$fromPin',
+    'to': '$toComponent.$toPin',
+  };
 }
 
 @immutable
@@ -30,11 +30,15 @@ class Project {
   final String name;
   final List<Component> components;
   final List<Wire> wires;
-  const Project({required this.name, this.components = const [], this.wires = const []});
+  const Project({
+    required this.name,
+    this.components = const [],
+    this.wires = const [],
+  });
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'components': [for (final c in components) c.toJson()],
-        'wires': [for (final w in wires) w.toJson()],
-      };
+    'name': name,
+    'components': [for (final c in components) c.toJson()],
+    'wires': [for (final w in wires) w.toJson()],
+  };
 }

@@ -22,3 +22,10 @@
 
 Engines (Phases 3+) are built **underneath** the application foundation (Phases 0–2),
 not before it.
+
+## Status
+
+Phase 0 complete: PM-first launch, in-memory session (create/open/close + validation),
+editor shell (drawer, zoom controls, minimap placeholder), `flutter analyze` clean,
+7/7 tests pass, debug APK builds. Native/FFI/MethodChannel boundaries are Phase 3 scope,
+not Phase 0 exit criteria. Next: Phase 1 Main Editor UI.

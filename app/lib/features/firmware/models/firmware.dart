@@ -4,7 +4,11 @@ class BuildConfig {
   final String mcu;
   final String fCpu;
   final String opt;
-  const BuildConfig({this.mcu = 'atmega32', this.fCpu = '16000000UL', this.opt = '-Os'});
+  const BuildConfig({
+    this.mcu = 'atmega32',
+    this.fCpu = '16000000UL',
+    this.opt = '-Os',
+  });
 }
 
 class BuildOutput {

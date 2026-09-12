@@ -18,6 +18,8 @@ class FirmwareManager extends Notifier<FirmwareState> {
   @override
   FirmwareState build() => const FirmwareState();
 
-  void setSources(List<String> s) => state = FirmwareState(sources: s, lastBuild: state.lastBuild);
-  void setBuild(BuildOutput b) => state = FirmwareState(sources: state.sources, lastBuild: b);
+  void setSources(List<String> s) =>
+      state = FirmwareState(sources: s, lastBuild: state.lastBuild);
+  void setBuild(BuildOutput b) =>
+      state = FirmwareState(sources: state.sources, lastBuild: b);
 }
