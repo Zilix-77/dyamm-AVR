@@ -114,10 +114,17 @@ class SessionController extends Notifier<ProjectSession> {
     _updateActive(wires: [for (final w in _activeWires) if (w.id != id) w]);
   }
 
-  Future<void> saveCurrent(ProjectStorage storage) async {
+  /// Saves the active project. Returns null on success, else a message
+  /// callers must surface (never silently drop saves).
+  Future<String?> saveCurrent(ProjectStorage storage) async {
     final active = state.active;
-    if (active == null) return;
-    await storage.save(active);
+    if (active == null) return 'no active project';
+    try {
+      await storage.save(active);
+      return null;
+    } catch (e) {
+      return '$e';
+    }
   }
 
   /// Opens a saved project by file name. Returns false when missing/corrupt.

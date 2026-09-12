@@ -2,8 +2,9 @@
 
 ## Verified
 
-- `flutter test` passes (8): widget smoke tests + session unit tests +
-  component JSON test + `PortB.unpack` test.
+- `flutter test` passes (31): PM/session flows, editor ops (place/move/rotate/
+  toggle/wire/delete), MNA solver values, JSON round-trips, disk save/load,
+  channel contract, Stitch layout chrome.
 - Fixture `atmega32_blink.hex` verified by `avr-objdump` disassembly
   (`sbi 0x17,0; sbi 0x18,0; rjmp .`).
 - `assembleDebug` acts as the native compile gate (32 TUs + link).

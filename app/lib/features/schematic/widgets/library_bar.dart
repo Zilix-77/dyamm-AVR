@@ -196,45 +196,51 @@ class _LibraryTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Tooltip(
-    message: selected
-        ? '${componentLabel(type)} — tap canvas to place'
-        : '${componentLabel(type)} — tap to arm placement',
-    child: GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 96,
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? EditorColors.active : EditorColors.card,
-          border: Border.all(
-            color: selected ? Colors.white : EditorColors.border,
-            width: selected ? 2 : 1,
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: selected
+          ? '${componentLabel(type)} — tap canvas to place'
+          : '${componentLabel(type)} — tap to arm placement',
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 96,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: selected ? EditorColors.active : EditorColors.card,
+            border: Border.all(
+              color: selected ? Colors.white : EditorColors.border,
+              width: selected ? 2 : 1,
+            ),
+            borderRadius: BorderRadius.circular(6),
           ),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            TileSymbol(
-              type: type,
-              ink: selected ? Colors.white : EditorColors.bright,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Text(
-                componentLabel(type),
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: selected ? Colors.white : EditorColors.muted,
-                  fontWeight: selected ? FontWeight.bold : FontWeight.w600,
-                  fontSize: 10,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TileSymbol(
+                  type: type,
+                  ink: selected ? Colors.white : EditorColors.bright,
                 ),
-              ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    componentLabel(type),
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: selected ? Colors.white : EditorColors.muted,
+                      fontWeight:
+                          selected ? FontWeight.bold : FontWeight.w600,
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }

@@ -30,8 +30,9 @@ Fonts are system fallbacks everywhere (`monospace` for readouts); no new deps.
   button labels collapse to icons so the bar fits phones.
 * `ProjectPanelBody` — shared content for fixed dock (drawer wrapper
   `ProjectPanel` kept for reuse). New → existing `NewProjectDialog`;
-  Open → first of `session.recents`; Save/Save As disabled (`Phase 4`
-  tooltips); PROPERTIES/SIMULATION/LAYERS are `ExpansionTile` placeholders.
+  Open → first of `session.recents`; Save wired to `.dyamm` files
+  (`FileProjectStorage`); Save As disabled (no rename flow yet);
+  PROPERTIES/SIMULATION/LAYERS are `ExpansionTile` placeholders.
 * `MinimapPlaceholder` — dotted field + viewport-rect outline; live
   tracking planned. `ZoomPill` — `-` / live `%` / `+` / reset via the
   existing `TransformationController`.

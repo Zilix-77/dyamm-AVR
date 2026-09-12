@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/editor_theme.dart';
+import '../simulation/simulation.dart';
 import 'canvas/schematic_canvas.dart';
 import 'widgets/editor_top_bar.dart';
 import 'widgets/library_bar.dart';
@@ -48,45 +49,83 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
           if (_dockOpen) const SizedBox(width: 256, child: ProjectPanelBody()),
           if (_dockOpen) Container(width: 1, color: EditorColors.border),
           Expanded(
-            child: Column(
-              children: [
-                Expanded(
-                  child: Stack(
-                    children: [
-                      SchematicCanvas(controller: _zoomController),
-                      const Positioned(
-                        top: 12,
-                        right: 12,
-                        child: MinimapPlaceholder(),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Stitch shelf is 192px; shrink proportionally on short
+                // landscape screens so the column never overflows.
+                final shelfHeight =
+                    (constraints.maxHeight * 0.38).clamp(120.0, 192.0);
+                return Column(
+                  children: [
+                    const _SimErrorStrip(),
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          SchematicCanvas(controller: _zoomController),
+                          const Positioned(
+                            top: 12,
+                            right: 12,
+                            child: MinimapPlaceholder(),
+                          ),
+                          Positioned(
+                            bottom: 12,
+                            left: 12,
+                            child: ZoomPill(
+                              controller: _zoomController,
+                              onZoomIn: () => _zoom(1.25),
+                              onZoomOut: () => _zoom(0.8),
+                              onReset: () => _zoomController.value =
+                                  Matrix4.identity(),
+                            ),
+                          ),
+                        ],
                       ),
-                      Positioned(
-                        bottom: 12,
-                        left: 12,
-                        child: ZoomPill(
-                          controller: _zoomController,
-                          onZoomIn: () => _zoom(1.25),
-                          onZoomOut: () => _zoom(0.8),
-                          onReset: () =>
-                              _zoomController.value = Matrix4.identity(),
-                        ),
+                    ),
+                    Container(height: 1, color: EditorColors.border),
+                    SizedBox(
+                      height: shelfHeight,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Expanded(child: ComponentLibraryBar()),
+                          Container(width: 1, color: EditorColors.border),
+                          const SizedBox(width: 216, child: ToolPad()),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-                Container(height: 1, color: EditorColors.border),
-                SizedBox(
-                  height: 192,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Expanded(child: ComponentLibraryBar()),
-                      Container(width: 1, color: EditorColors.border),
-                      const SizedBox(width: 216, child: ToolPad()),
-                    ],
-                  ),
-                ),
-              ],
+                    ),
+                  ],
+                );
+              },
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Slim error strip for the last DC solve. Hidden on success.
+class _SimErrorStrip extends ConsumerWidget {
+  const _SimErrorStrip();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final error = ref.watch(simErrorProvider);
+    if (error == null) return const SizedBox.shrink();
+    return Container(
+      color: const Color(0xFF3A1414),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, size: 16, color: Colors.white),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(error,
+                style: const TextStyle(color: Colors.white, fontSize: 12)),
+          ),
+          GestureDetector(
+            onTap: () => ref.read(simErrorProvider.notifier).state = null,
+            child: const Icon(Icons.close, size: 16, color: Colors.white),
           ),
         ],
       ),

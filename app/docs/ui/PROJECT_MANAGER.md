@@ -31,12 +31,20 @@ Behavior (unchanged, existing logic):
 - Session state: `ProjectSession { recents, active }` in `project_manager.dart`
   (`create` / `open` / `close` / `addComponent` / moves / wires / save).
 
-## Planned (not in Phase 0)
+## Planned (not implemented)
 
-- **Open Project** via file picker for `.dyamm` files (Phase 4).
+- **Open Project** via system file picker (import from anywhere).
 - **Import Project** (e.g. `.zip` AVR sources).
 - **Project information/settings** (rename, MCU target, storage location).
-- Persistence of any kind — session is lost on restart.
+- **Save As / Delete** flows.
+
+## Persistence (implemented)
+
+`FileProjectStorage` (`services/project_storage.dart`): one `<name>.dyamm` JSON
+file per project under app-documents `simavr_projects/` (`save` / `open` /
+`list`). Drawer Save writes the active project; PM `ON THIS DEVICE` lists and
+opens saved files; corrupt/missing opens fail soft (`openSaved` → false +
+snackbar). Session recents remain in-memory only.
 
 ## Main Editor (Phase 0 shell)
 

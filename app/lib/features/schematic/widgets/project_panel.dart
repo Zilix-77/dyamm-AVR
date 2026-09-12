@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/editor_theme.dart';
 import '../../project/project_manager.dart';
 import '../../project/project_manager_screen.dart';
+import '../../project/services/project_storage.dart';
 
 /// Left dock panel — Stitch order: PROJECT · PROPERTIES · SIMULATION ·
 /// LAYERS + version footer. Only New/Open are live (existing session logic);
@@ -49,12 +50,25 @@ class ProjectPanelBody extends ConsumerWidget {
                   },
                 ),
                 const _OpenRow(),
-                const _RowButton(
-                  icon: Icons.download_outlined,
-                  label: 'Save',
-                  enabled: false,
-                  disabledTooltip: 'Phase 4 — .dyamm persistence',
-                ),
+                  _RowButton(
+                    icon: Icons.download_outlined,
+                    label: 'Save',
+                    onTap: () async {
+                      final storage = await FileProjectStorage.appDir();
+                      final err = await ref
+                          .read(sessionProvider.notifier)
+                          .saveCurrent(storage);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(err == null
+                                ? 'Saved to ${storage.dir.path}'
+                                : 'Save failed: $err'),
+                          ),
+                        );
+                      }
+                    },
+                  ),
                 const _RowButton(
                   icon: Icons.file_copy_outlined,
                   label: 'Save As',

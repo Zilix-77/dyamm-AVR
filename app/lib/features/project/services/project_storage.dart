@@ -23,7 +23,10 @@ class FileProjectStorage implements ProjectStorage {
   static Future<FileProjectStorage> appDir() async {
     final docs = await getApplicationDocumentsDirectory();
     final dir = Directory('${docs.path}/simavr_projects');
-    if (!await dir.exists()) await dir.create(recursive: true);
+    await dir.create(recursive: true);
+    if (!await dir.exists()) {
+      throw StateError('storage unavailable at ${dir.path}');
+    }
     return FileProjectStorage(dir);
   }
 

@@ -1,4 +1,4 @@
-/// Schematic editing state (PRD §6.1, Phase 4).
+/// Schematic editing state (PRD §6.1).
 enum SchematicTool {
   select,
   move,

@@ -128,13 +128,17 @@ class EditorTopBar extends ConsumerWidget implements PreferredSizeWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _SimButton(
-                      label: 'Run',
-                      icon: Icons.play_arrow,
-                      filled: true,
-                      iconOnly: compact,
-                      onPressed: sim == SimState.running ? null : simCtl.run,
-                    ),
+                _SimButton(
+                  label: 'Run',
+                  icon: Icons.play_arrow,
+                  filled: true,
+                  onPressed: sim == SimState.running
+                      ? null
+                      : () {
+                          refreshSimulation(ref);
+                          simCtl.run();
+                        },
+                ),
                     const SizedBox(width: 4),
                     _SimButton(
                       label: 'Pause',

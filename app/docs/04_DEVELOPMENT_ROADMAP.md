@@ -26,6 +26,9 @@
 
 Phase 0 complete. Phase 1 complete with caveat: core/run/GPIO verified on-device
 (PASS ×5, TEMP screen since removed); timers/interrupts compiled in, dedicated
-exercise is follow-up. Phase 2 prep: Spike A PASS — exec-from-nativeLibraryDir
+exercise is follow-up. Editor + DC solver + file persistence implemented and
+tested (31/31 flutter tests): place/select/move/delete/rotate/wire, switch
+toggle, save/open `.dyamm` on disk, live LED states, solver error banner.
+Phase 2 prep: Spike A PASS — exec-from-nativeLibraryDir
 verified on-device (exit 0, token returned); Arduino-based cross-build plan next.
 Phases 3+ remain Planned.
