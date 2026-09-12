@@ -19,10 +19,22 @@ class Wire {
   });
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'from': '$fromComponent.$fromPin',
-    'to': '$toComponent.$toPin',
-  };
+        'id': id,
+        'from': '$fromComponent.$fromPin',
+        'to': '$toComponent.$toPin',
+      };
+
+  factory Wire.fromJson(Map<String, dynamic> j) {
+    final from = (j['from'] as String).split('.');
+    final to = (j['to'] as String).split('.');
+    return Wire(
+      id: j['id'] as String,
+      fromComponent: from[0],
+      fromPin: from.length > 1 ? from[1] : '',
+      toComponent: to[0],
+      toPin: to.length > 1 ? to[1] : '',
+    );
+  }
 }
 
 @immutable
@@ -37,8 +49,20 @@ class Project {
   });
 
   Map<String, dynamic> toJson() => {
-    'name': name,
-    'components': [for (final c in components) c.toJson()],
-    'wires': [for (final w in wires) w.toJson()],
-  };
+        'name': name,
+        'components': [for (final c in components) c.toJson()],
+        'wires': [for (final w in wires) w.toJson()],
+      };
+
+  factory Project.fromJson(Map<String, dynamic> j) => Project(
+        name: j['name'] as String,
+        components: [
+          for (final c in (j['components'] as List? ?? []))
+            Component.fromJson(Map<String, dynamic>.from(c as Map)),
+        ],
+        wires: [
+          for (final w in (j['wires'] as List? ?? []))
+            Wire.fromJson(Map<String, dynamic>.from(w as Map)),
+        ],
+      );
 }

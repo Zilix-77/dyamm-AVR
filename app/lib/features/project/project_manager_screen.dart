@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'project_manager.dart';
+import 'services/project_storage.dart';
 
-/// First screen (Phase 0): branding, New Project, in-memory recents.
-/// File-based open arrives in Phase 2.
+/// First screen: branding, New Project, recents + on-disk projects.
 class ProjectManagerScreen extends ConsumerWidget {
   const ProjectManagerScreen({super.key});
 
@@ -59,6 +59,11 @@ class ProjectManagerScreen extends ConsumerWidget {
                           ref.read(sessionProvider.notifier).open(p),
                     ),
                   ),
+              const SizedBox(height: 24),
+              Text('On This Device',
+                  style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              const _SavedProjectList(),
             ],
           ),
         ),
@@ -66,6 +71,55 @@ class ProjectManagerScreen extends ConsumerWidget {
     );
   }
 }
+
+/// Lists `.dyamm` files saved on device; tap opens into the editor.
+/// Shows nothing while loading and an error line on failure.
+class _SavedProjectList extends ConsumerWidget {
+  const _SavedProjectList();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final saved = ref.watch(_savedProjectsProvider);
+    return saved.when(
+      loading: () => const SizedBox.shrink(),
+      error: (e, _) => Text('Could not list saved projects: $e'),
+      data: (names) => Column(
+        children: [
+          if (names.isEmpty)
+            const Card(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('Nothing saved yet. Use Save in the editor.'),
+              ),
+            )
+          else
+            for (final n in names)
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.sd_storage),
+                  title: Text(n),
+                  onTap: () async {
+                    final ok = await ref
+                        .read(sessionProvider.notifier)
+                        .openSaved(await FileProjectStorage.appDir(), n);
+                    if (!ok && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Could not open $n')),
+                      );
+                    }
+                  },
+                ),
+              ),
+        ],
+      ),
+    );
+  }
+}
+
+final _savedProjectsProvider = FutureProvider<List<String>>((ref) async {
+  final storage = await FileProjectStorage.appDir();
+  return storage.list();
+});
 
 /// Name dialog owns its controller so dispose aligns with the route lifecycle.
 class NewProjectDialog extends ConsumerStatefulWidget {

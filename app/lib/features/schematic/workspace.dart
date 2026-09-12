@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/sim_state.dart';
 import '../project/project_manager.dart';
+import '../project/services/project_storage.dart';
 import '../simulation/simulation.dart';
 import 'canvas/schematic_canvas.dart';
 import 'widgets/library_bar.dart';
@@ -99,20 +100,34 @@ class _WorkspaceScreenState extends ConsumerState<WorkspaceScreen> {
   }
 }
 
-/// Left project/file panel. File entries are placeholders (Phase 2).
+/// Left project/file panel: save action + file entries.
 class ProjectPanel extends ConsumerWidget {
   const ProjectPanel({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final name = ref.watch(sessionProvider.select((s) => s.active?.name ?? ''));
+    final count = ref.watch(sessionProvider.select(
+        (s) => s.active == null ? 0 : s.active!.components.length + s.active!.wires.length));
     return Drawer(
       child: ListView(
         children: [
           DrawerHeader(child: Text(name)),
-          const ListTile(
-            leading: Icon(Icons.developer_board),
-            title: Text('Schematic (placeholder)'),
+          ListTile(
+            leading: const Icon(Icons.save),
+            title: const Text('Save'),
+            subtitle: Text('$count items'),
+            onTap: () async {
+              await ref
+                  .read(sessionProvider.notifier)
+                  .saveCurrent(await FileProjectStorage.appDir());
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Project saved')),
+                );
+              }
+            },
           ),
           const ListTile(
             leading: Icon(Icons.code),
