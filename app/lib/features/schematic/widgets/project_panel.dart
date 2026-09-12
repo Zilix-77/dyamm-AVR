@@ -50,25 +50,27 @@ class ProjectPanelBody extends ConsumerWidget {
                   },
                 ),
                 const _OpenRow(),
-                  _RowButton(
-                    icon: Icons.download_outlined,
-                    label: 'Save',
-                    onTap: () async {
-                      final storage = await FileProjectStorage.appDir();
-                      final err = await ref
-                          .read(sessionProvider.notifier)
-                          .saveCurrent(storage);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(err == null
+                _RowButton(
+                  icon: Icons.download_outlined,
+                  label: 'Save',
+                  onTap: () async {
+                    final storage = await FileProjectStorage.appDir();
+                    final err = await ref
+                        .read(sessionProvider.notifier)
+                        .saveCurrent(storage);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            err == null
                                 ? 'Saved to ${storage.dir.path}'
-                                : 'Save failed: $err'),
+                                : 'Save failed: $err',
                           ),
-                        );
-                      }
-                    },
-                  ),
+                        ),
+                      );
+                    }
+                  },
+                ),
                 const _RowButton(
                   icon: Icons.file_copy_outlined,
                   label: 'Save As',
@@ -139,12 +141,15 @@ class ProjectPanelBody extends ConsumerWidget {
                   ),
                 ),
                 SizedBox(width: 8),
-                Text(
-                  'Version : 1.0.0',
-                  style: TextStyle(
-                    color: EditorColors.muted,
-                    fontFamily: EditorColors.fontMono,
-                    fontSize: 12,
+                Flexible(
+                  child: Text(
+                    'Version : 1.0.0',
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: EditorColors.muted,
+                      fontFamily: EditorColors.fontMono,
+                      fontSize: 11,
+                    ),
                   ),
                 ),
               ],

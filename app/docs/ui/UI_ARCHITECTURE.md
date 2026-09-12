@@ -6,40 +6,53 @@
 > Status: Stitch replica implemented on `phase-ui-stitch`; behavior
 > placeholders roadmap-gated (see table).
 
-## Two-theme split (as built)
+## Theme (as built)
 
-| Surface | Theme | Tokens |
-|---|---|---|
-| Schematic editor | `editorTheme()` (dark) | canvas `#040404`, panel `#0d0d0d`, card `#161616`, border `#282828`, muted `#7e7e7e`, bright `#f4f4f4` (+ `borderLight/active/pill/sheet/pad` from `code.html`) |
-| Project Manager + dialogs | `managerTheme()` (Bauhaus brutalist) | paper `#f5f0e8`, ink `#1a1a1a`, yellow `#ffcc00`, red `#e63b2e`, blue `#0055ff`; 2.5px borders, 5px offset shadows, no radius |
-
-Fonts are system fallbacks everywhere (`monospace` for readouts); no new deps.
+Unified dark CAD on every surface (`editorTheme()`): canvas `#040404`,
+panel `#0d0d0d`, card `#161616`, border `#282828`, muted `#7e7e7e`, bright
+`#f4f4f4` (+ `borderLight/active/pill/sheet/pad` from `code.html`). The
+Bauhaus-brutalist `DESIGN.md` skin was removed (`Brutalist`/`managerTheme()`
+deleted); the Project Manager shares editor tokens in a portrait
+file-manager layout. Fonts are system fallbacks everywhere (`monospace`
+for readouts); no new deps.
 
 ## Editor layout (as built, `workspace.dart`)
 
 ```text
 ┌ EditorTopBar (64px): menu · DYAMM mark · <name>.dyamm pill · Run/Pause/Stop · cluster
-├ Row: ProjectPanelBody dock (256px, collapsible via menu)
-│      ├ Column: SchematicCanvas stack (Minimap TR, ZoomPill BL) + 192px shelf
-│      └ Shelf row: ComponentLibraryBar (flex) + ToolPad (216px)
+├ Row: ProjectPanelBody dock (draggable 180–360px, collapsible via menu)
+│      ├ Column: SchematicCanvas stack (live Minimap TR, ZoomPill BL) + shelf (draggable 120–260px)
+│      └ Shelf row: ComponentLibraryBar (flex) + ToolPad (160–216px responsive)
+└ _DragDivider handles (12px touch target, hover-brighten, keyed for tests)
 ```
 
-* `EditorTopBar` — Run/Pause/Stop wired to `SimController` (same enable
-  logic as before); grid/snap/undo/redo/bookmark/settings are disabled
-  placeholders with honest tooltips. Under 860px wide, brand text and
-  button labels collapse to icons so the bar fits phones.
+* `EditorTopBar` — Run/Pause/Stop wired to `SimController` (+ solver
+  refresh on Run); grid/snap toggles, undo/redo (history-backed), and Save
+  (`.dyamm` + snackbar) are live; Settings remains the only placeholder.
+  Width tiers: full ≥860px, icon-only compact below, placeholder cluster
+  hidden under 600px (rotation frames) so the bar never overflows.
 * `ProjectPanelBody` — shared content for fixed dock (drawer wrapper
   `ProjectPanel` kept for reuse). New → existing `NewProjectDialog`;
   Open → first of `session.recents`; Save wired to `.dyamm` files
   (`FileProjectStorage`); Save As disabled (no rename flow yet);
   PROPERTIES/SIMULATION/LAYERS are `ExpansionTile` placeholders.
-* `MinimapPlaceholder` — dotted field + viewport-rect outline; live
-  tracking planned. `ZoomPill` — `-` / live `%` / `+` / reset via the
-  existing `TransformationController`.
+  Footer/rename rows use `Flexible` + ellipsis so the 180px min width
+  never overflows.
+* Live `Minimap` — component dots, viewport rect, tap-to-navigate via
+  `geometry.dart` viewport math + `canvasSizeProvider`. `ZoomPill` — `-` /
+  live `%` / `+` / reset via the existing `TransformationController`.
 * Canvas gestures (place/select/move/delete/rotate/wire) live in
   `SchematicCanvas` + `editor_state.dart` providers; symbols from
   `symbols.dart` re-inked for dark (`#E8E8E8` ink, grey wires/pins/tags).
-* `AndroidManifest.xml`: `sensorLandscape` (landscape-only).
+* Viewport preservation: resizing changes layout constraints only; the
+  zoom matrix is never touched (covered by `editor_resize_test.dart`).
+
+## Orientation (as built)
+
+Manifest `fullSensor` (no OS lock); `RootScreen` drives
+`SystemChrome.setPreferredOrientations` on session transitions only —
+PM `[portraitUp]`, editor `[landscapeLeft, landscapeRight]` (hard lock).
+Sizes are session-only state (reset when the editor closes).
 
 ## Rules
 

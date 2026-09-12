@@ -32,15 +32,23 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Run'), findsOneWidget);
     expect(find.widgetWithText(FilledButton, 'Pause'), findsOneWidget);
     expect(find.widgetWithText(FilledButton, 'Stop'), findsOneWidget);
-    expect(find.byTooltip('Toggle grid (Phase 3)'), findsOneWidget);
-    expect(find.byTooltip('Snap to grid (Phase 3)'), findsOneWidget);
-    expect(find.byTooltip('Undo (Phase 3)'), findsOneWidget);
-    expect(find.byTooltip('Redo (Phase 3)'), findsOneWidget);
-    expect(
-      find.byTooltip('Save (Phase 4 — .dyamm persistence)'),
-      findsOneWidget,
-    );
+    // Grid/snap/undo/redo/save are live buttons (not placeholders).
+    expect(find.byTooltip('Grid: on'), findsOneWidget);
+    expect(find.byTooltip('Snap: on'), findsOneWidget);
+    expect(find.byTooltip('Undo'), findsOneWidget);
+    expect(find.byTooltip('Redo'), findsOneWidget);
+    expect(find.byTooltip('Save project'), findsOneWidget);
     expect(find.byTooltip('Settings (planned)'), findsOneWidget);
+  });
+
+  testWidgets('grid/snap toggles flip state', (WidgetTester tester) async {
+    await _pumpEditor(tester);
+    await tester.tap(find.byTooltip('Grid: on'));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Grid: off'), findsOneWidget);
+    await tester.tap(find.byTooltip('Snap: on'));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Snap: off'), findsOneWidget);
   });
 
   testWidgets('dock sections + placeholders', (WidgetTester tester) async {
@@ -64,7 +72,7 @@ void main() {
     expect(find.byTooltip('Zoom out'), findsOneWidget);
     expect(find.byTooltip('Reset zoom'), findsOneWidget);
     expect(find.text('100%'), findsOneWidget);
-    expect(find.byTooltip('Minimap (live tracking planned)'), findsOneWidget);
+    expect(find.byTooltip('Minimap — tap to navigate'), findsOneWidget);
   });
 
   testWidgets('library: 11 chips + 13 tiles', (WidgetTester tester) async {

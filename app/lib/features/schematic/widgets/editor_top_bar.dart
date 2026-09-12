@@ -4,7 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/sim_state.dart';
 import '../../../core/theme/editor_theme.dart';
 import '../../project/project_manager.dart';
+import '../../project/services/project_storage.dart';
 import '../../simulation/simulation.dart';
+import '../editor_state.dart';
+import 'magnet_icon.dart';
 
 /// Landscape editor top bar — Stitch order:
 /// hamburger · DYAMM mark · project pill · Run/Pause/Stop · utility cluster.
@@ -26,6 +29,9 @@ class EditorTopBar extends ConsumerWidget implements PreferredSizeWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 860;
+        // Portrait transition frames / very narrow screens: placeholders
+        // hide entirely (their tools live in the pad); bar never overflows.
+        final minimal = constraints.maxWidth < 600;
         return Container(
           height: 64,
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -72,8 +78,8 @@ class EditorTopBar extends ConsumerWidget implements PreferredSizeWidget {
               Flexible(
                 child: Container(
                   constraints: const BoxConstraints(minHeight: 44),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: minimal ? 8 : 14,
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
@@ -84,19 +90,22 @@ class EditorTopBar extends ConsumerWidget implements PreferredSizeWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
+                      if (!minimal) ...[
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
+                        const SizedBox(width: 10),
+                      ],
                       Flexible(
                         child: Text(
                           '$projectName.dyamm',
                           overflow: TextOverflow.ellipsis,
+                          softWrap: false,
                           style: const TextStyle(
                             color: EditorColors.bright,
                             fontFamily: EditorColors.fontMono,
@@ -128,17 +137,18 @@ class EditorTopBar extends ConsumerWidget implements PreferredSizeWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                _SimButton(
-                  label: 'Run',
-                  icon: Icons.play_arrow,
-                  filled: true,
-                  onPressed: sim == SimState.running
-                      ? null
-                      : () {
-                          refreshSimulation(ref);
-                          simCtl.run();
-                        },
-                ),
+                    _SimButton(
+                      label: 'Run',
+                      icon: Icons.play_arrow,
+                      filled: true,
+                      iconOnly: compact,
+                      onPressed: sim == SimState.running
+                          ? null
+                          : () {
+                              refreshSimulation(ref);
+                              simCtl.run();
+                            },
+                    ),
                     const SizedBox(width: 4),
                     _SimButton(
                       label: 'Pause',
@@ -157,38 +167,19 @@ class EditorTopBar extends ConsumerWidget implements PreferredSizeWidget {
                 ),
               ),
               const Spacer(),
-              _PlaceholderIcon(
-                icon: Icons.grid_on_outlined,
-                tooltip: 'Toggle grid (Phase 3)',
-                compact: compact,
-              ),
-              _PlaceholderIcon(
-                  icon: Icons.straighten,
-                tooltip: 'Snap to grid (Phase 3)',
-                compact: compact,
-              ),
-              if (!compact) const _BarDivider(),
-              _PlaceholderIcon(
-                icon: Icons.undo,
-                tooltip: 'Undo (Phase 3)',
-                compact: compact,
-              ),
-              _PlaceholderIcon(
-                icon: Icons.redo,
-                tooltip: 'Redo (Phase 3)',
-                compact: compact,
-              ),
-              if (!compact) const _BarDivider(),
-              _PlaceholderIcon(
-                icon: Icons.bookmark_border,
-                tooltip: 'Save (Phase 4 — .dyamm persistence)',
-                compact: compact,
-              ),
-              _PlaceholderIcon(
-                icon: Icons.settings_outlined,
-                tooltip: 'Settings (planned)',
-                compact: compact,
-              ),
+              if (!minimal) ...[
+                _GridToggle(compact: compact),
+                _SnapToggle(compact: compact),
+                if (!compact) const _BarDivider(),
+                _UndoRedo(compact: compact),
+                if (!compact) const _BarDivider(),
+                _SaveButton(compact: compact),
+                _PlaceholderIcon(
+                  icon: Icons.settings_outlined,
+                  tooltip: 'Settings (planned)',
+                  compact: compact,
+                ),
+              ],
             ],
           ),
         );
@@ -277,5 +268,135 @@ class _BarDivider extends StatelessWidget {
     height: 24,
     margin: const EdgeInsets.symmetric(horizontal: 4),
     color: EditorColors.border,
+  );
+}
+
+/// Toggle button with honest on/off visuals (white = on, dimmed = off).
+class _ToggleIcon extends StatelessWidget {
+  final String tooltip;
+  final bool value;
+  final VoidCallback onTap;
+  final Widget icon;
+  const _ToggleIcon({
+    required this.tooltip,
+    required this.value,
+    required this.onTap,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+    message: tooltip,
+    child: SizedBox(
+      width: 44,
+      height: 44,
+      child: IconButton(
+        onPressed: onTap,
+        icon: icon,
+        color: value ? Colors.white : EditorColors.muted,
+      ),
+    ),
+  );
+}
+
+class _GridToggle extends ConsumerWidget {
+  final bool compact;
+  const _GridToggle({this.compact = false});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final on = ref.watch(showGridProvider);
+    return _ToggleIcon(
+      tooltip: on ? 'Grid: on' : 'Grid: off',
+      value: on,
+      onTap: () => ref.read(showGridProvider.notifier).state = !on,
+      icon: const Icon(Icons.grid_on_outlined, size: 22),
+    );
+  }
+}
+
+class _SnapToggle extends ConsumerWidget {
+  final bool compact;
+  const _SnapToggle({this.compact = false});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final on = ref.watch(snapEnabledProvider);
+    return _ToggleIcon(
+      tooltip: on ? 'Snap: on' : 'Snap: off',
+      value: on,
+      onTap: () => ref.read(snapEnabledProvider.notifier).state = !on,
+      icon: MagnetIcon(size: 22, color: on ? Colors.white : EditorColors.muted),
+    );
+  }
+}
+
+class _UndoRedo extends ConsumerWidget {
+  final bool compact;
+  const _UndoRedo({this.compact = false});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Rebuilds on every history change.
+    ref.watch(historyVersionProvider);
+    final ctl = ref.read(sessionProvider.notifier);
+    final canUndo = ctl.canUndo();
+    final canRedo = ctl.canRedo();
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: 44,
+          height: 44,
+          child: IconButton(
+            tooltip: 'Undo',
+            onPressed: canUndo ? ctl.undo : null,
+            icon: const Icon(Icons.undo, size: 22),
+            color: Colors.white,
+            disabledColor: EditorColors.muted,
+          ),
+        ),
+        SizedBox(
+          width: 44,
+          height: 44,
+          child: IconButton(
+            tooltip: 'Redo',
+            onPressed: canRedo ? ctl.redo : null,
+            icon: const Icon(Icons.redo, size: 22),
+            color: Colors.white,
+            disabledColor: EditorColors.muted,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SaveButton extends ConsumerWidget {
+  final bool compact;
+  const _SaveButton({this.compact = false});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => SizedBox(
+    width: 44,
+    height: 44,
+    child: IconButton(
+      tooltip: 'Save project',
+      onPressed: () async {
+        final err = await ref
+            .read(sessionProvider.notifier)
+            .saveCurrent(await FileProjectStorage.appDir());
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(err ?? 'Project saved'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      },
+      icon: const Icon(Icons.bookmark_border, size: 22),
+      color: Colors.white,
+    ),
   );
 }

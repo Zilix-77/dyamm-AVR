@@ -52,23 +52,29 @@ class _ComponentLibraryBarState extends ConsumerState<ComponentLibraryBar> {
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                // Narrow shelf: search collapses away (icon implies it).
+                // Narrow shelf: search collapses away (icon implies it);
+                // micro widths (rotation frames): title ellipsizes, no overflow.
                 final narrow = constraints.maxWidth < 460;
+                final micro = constraints.maxWidth < 120;
                 return Row(
                   children: [
-                    const Text(
-                      'Component Library',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                    Flexible(
+                      child: Text(
+                        micro ? 'Library' : 'Component Library',
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
-                    const Icon(
-                      Icons.keyboard_arrow_down,
-                      color: EditorColors.muted,
-                      size: 16,
-                    ),
+                    if (!micro)
+                      const Icon(
+                        Icons.keyboard_arrow_down,
+                        color: EditorColors.muted,
+                        size: 16,
+                      ),
                     const Spacer(),
                     if (!narrow)
                       const SizedBox(
@@ -230,8 +236,7 @@ class _LibraryTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: selected ? Colors.white : EditorColors.muted,
-                      fontWeight:
-                          selected ? FontWeight.bold : FontWeight.w600,
+                      fontWeight: selected ? FontWeight.bold : FontWeight.w600,
                       fontSize: 10,
                     ),
                   ),

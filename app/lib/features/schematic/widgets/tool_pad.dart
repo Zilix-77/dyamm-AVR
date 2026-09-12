@@ -29,6 +29,18 @@ class ToolPad extends ConsumerWidget {
               tool: t,
               active: t == active,
               onTap: () {
+                if (t == SchematicTool.cut ||
+                    t == SchematicTool.copy ||
+                    t == SchematicTool.paste ||
+                    t == SchematicTool.more) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${toolLabel(t)} is not implemented yet'),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                  return;
+                }
                 ref.read(activeToolProvider.notifier).state = t;
                 if (t != SchematicTool.wire) {
                   ref.read(pendingWireProvider.notifier).state = null;
@@ -69,24 +81,28 @@ class _ToolCell extends StatelessWidget {
           border: active ? null : Border.all(color: EditorColors.border),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              toolIcon(tool),
-              size: 20,
-              color: active ? Colors.black : EditorColors.bright,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              toolLabel(tool),
-              style: TextStyle(
-                color: active ? Colors.black : EditorColors.muted,
-                fontWeight: active ? FontWeight.bold : FontWeight.w500,
-                fontSize: 10,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                toolIcon(tool),
+                size: 20,
+                color: active ? Colors.black : EditorColors.bright,
               ),
-            ),
-          ],
+              const SizedBox(height: 2),
+              Text(
+                toolLabel(tool),
+                style: TextStyle(
+                  color: active ? Colors.black : EditorColors.muted,
+                  fontWeight: active ? FontWeight.bold : FontWeight.w500,
+                  fontSize: 10,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     ),
